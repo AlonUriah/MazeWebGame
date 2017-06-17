@@ -1,0 +1,53 @@
+<div class="container" style="width: 700px">
+<form name="regForm" class="form-horizontal">
+    <div ng-class="{'form-group has-feedback': !regForm.username.$dirty, 'form-group has-success has-feedback': regForm.username.$valid && regForm.username.$dirty, 'form-group has-error has-feedback': regForm.username.$invalid && regForm.username.$dirty}">
+        <label class="col-sm-5 control-label" for="input-username">Username</label>
+        <div class="col-sm-7">
+            <input type="text" id="input-username" ng-model="details.username.value" class="form-control" name="username" placeholder="e.g johnny1" required ua-username />
+            	<span ng-show="regForm.username.$valid && regForm.username.$dirty" class="glyphicon glyphicon-ok form-control-feedback"/>
+            	<span ng-show="regForm.username.$invalid && regForm.username.$dirty" class="glyphicon glyphicon-remove form-control-feedback"/>
+                <span class="help-block" ng-repeat="error in details.username.errors">{{error}}</span>
+
+        </div>
+    </div>
+
+    <div ng-class="{'form-group has-feedback': !regForm.password.$dirty, 'form-group has-success has-feedback': regForm.password.$valid && regForm.password.$dirty, 'form-group has-error has-feedback': regForm.password.$invalid && regForm.password.$dirty}">
+        <label class="col-sm-5 control-label" for="input-password">Password</label>
+        <div class="col-sm-7">
+            <input type="password" id="input-password" ng-model="details.password.value" class="form-control" name="password" required ua-password />
+                <span ng-show="regForm.password.$valid && regForm.password.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
+                <span ng-show="regForm.password.$invalid && regForm.password.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
+                <span class="help-block" ng-repeat="(key, error) in details.password.errors">{{error}}</span>
+
+        </div>
+    </div>
+
+    <div ng-class="{'form-group has-feedback': !regForm.passvalid.$dirty, 'form-group has-success has-feedback': regForm.passvalid.$valid && regForm.passvalid.$dirty, 'form-group has-error has-feedback': regForm.passvalid.$invalid && regForm.passvalid.$dirty}">
+        <label class="col-sm-5 control-label" for="input-passvalid">Confirm password</label>
+        <div class="col-sm-7">
+            <input type="password" id="input-passvalid" ng-model="details.passvalid.value" class="form-control" name="passvalid" required ua-valid />
+                <span ng-show="regForm.passvalid.$valid && regForm.passvalid.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
+                <span ng-show="regForm.passvalid.$invalid && regForm.passvalid.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
+                <span class="help-block" ng-repeat="error in details.passvalid.errors">{{error}}</span>
+
+        </div>
+    </div>
+
+    <div ng-class="{'form-group has-feedback': !regForm.email.$dirty, 'form-group has-success has-feedback': regForm.email.$valid && regForm.email.$dirty, 'form-group has-error has-feedback': regForm.email.$invalid && regForm.email.$dirty}">
+        <label class="col-sm-5 control-label" for="input-email">E-Mail</label>
+        <div class="col-sm-7">
+            <input type="text" id="input-email" ng-model="details.email.value" class="form-control" name="email" placeholder="e.g john@example.com" required ua-email/>
+                <span ng-show="regForm.email.$valid && regForm.email.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
+                <span ng-show="regForm.email.$invalid && regForm.email.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
+                <span class="help-block" ng-repeat="error in details.email.errors">{{error}}</span>
+
+        </div>
+    </div>
+    <div class="form-group" id="btn-sign">
+        <div class="col-sm-5"/>
+        <div class="col-sm-7">
+            <button ng-click="register()" ng-disabled="regForm.$invalid || !regForm.$dirty" type="submit" class="btn btn-primary">Sign up!</button>
+        </div>
+    </div>
+</form>
+</div>
