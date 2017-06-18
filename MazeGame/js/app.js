@@ -51,17 +51,24 @@ var app = angular.module('MazeProject', ['ngRoute'])
 				.controller('aboutCtrl', function($scope) {
 
 				})
-				.controller('singleCtrl', function($scope, $http) {
-					$scope.name = '';
-					$scope.rows = '';
-					$scope.cols = '';
+				.controller('singleCtrl', function($scope) {
+                    $scope.name = {
+                        value: '',
+                        errors: []
+                    };
+                    $scope.rows = {
+                        value: '',
+                        errors: []
+                    };
+                    $scope.cols = {
+                        value: '',
+                        errors: []
+                    };
 					$scope.algorithm = '';
 
+                    $scope.maze = undefined;
 
 					// validate
-
-					var player_row = -1;
-					var player_col = -1;
 
 					$scope.startGame = function() {
 						var data = {
@@ -75,14 +82,14 @@ var app = angular.module('MazeProject', ['ngRoute'])
 							url: 'api/Default/5',
                         })
                         .done(function (response) {
-                            console.log(response);  
+                            console.log(response);
 						})
 						.fail(function (error) {
 							alert('An error occured!');
 						});
 					
                         var maze = {
-                            mazeData: "01101#10101101*000110101011101",
+                            mazeData: "01101#00000001*000100100011001",
                             rows: 5,
                             cols: 6,
                             pos: {
@@ -105,10 +112,13 @@ var app = angular.module('MazeProject', ['ngRoute'])
 
 					}
 
-					
+                    $scope.solveGame = function () {
+                        
+                    }
+
 
 				})
-				.controller('regCtrl', function($scope, $http) {
+				.controller('regCtrl', function($scope) {
 					var details = {
 						username: {
 							value: '',
@@ -137,21 +147,22 @@ var app = angular.module('MazeProject', ['ngRoute'])
 
 					// validation
 					$scope.register = function() {
-						var d = {
+						var data = {
 							username: $scope.username,
 							password: $scope.password,
 							email: $scope.email
 						};
 						// ajax call with details
 
-						$http.get({
-							url: '/api/values/3'
+						JQ.get({
+                            url: '/api/values/3',
+                            data: data
 						})
-						.success(function(response) {
+						.done(function(response) {
 							console.log(response);
 						})
-						.error(function(err) {
-							console.log(err);
+						.fail(function(error) {
+							console.log(error);
 						});
 					}
 				})
@@ -247,6 +258,46 @@ var app = angular.module('MazeProject', ['ngRoute'])
         							return value;
       							}
       							mCtrl.$parsers.push(emailValidation);
+    					}
+  					};
+				})
+                .directive('uaGame', function() {
+ 					return {
+    					require: 'ngModel',
+    					link: function(scope, element, attr, mCtrl) {
+                            function gameValidation(value) {
+                                var regex = /^[a-zA-Z]+$/;
+        							if (regex.test(value)) {
+        								scope.name.errors = [];
+          								mCtrl.$setValidity('letters', true);
+        							} else {
+        								if (scope.name.errors.length == 0)
+                                            scope.name.errors.push("Game's name should consist of letters only.");
+          								mCtrl.$setValidity('letters', false);
+        							}
+        							return value;
+      							}
+      							mCtrl.$parsers.push(gameValidation);
+    					}
+  					};
+    })
+                .directive('uaRows', function() {
+ 					return {
+    					require: 'ngModel',
+    					link: function(scope, element, attr, mCtrl) {
+                            function rowsValidation(value) {
+                                var regex = /^[a-zA-Z]+$/;
+        							if (regex.test(value)) {
+        								scope.name.errors = [];
+          								mCtrl.$setValidity('letters', true);
+        							} else {
+        								if (scope.name.errors.length == 0)
+                                            scope.name.errors.push("Game's name should consist of letters only.");
+          								mCtrl.$setValidity('letters', false);
+        							}
+        							return value;
+      							}
+      							mCtrl.$parsers.push(rowsValidation);
     					}
   					};
 				});

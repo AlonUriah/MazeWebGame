@@ -11,6 +11,8 @@
         var cols = maze.cols;
         var cellWidth = this[0].width / cols;
         var cellHeight = this[0].height / rows;
+
+
         for (var i = 0; i < rows; i++)
             for (var j = 0; j < cols; j++) {
                 var val = maze.mazeData[(i * cols) + j];
@@ -30,8 +32,8 @@
                         img1.src = "resources/end.png";
                         break;
                     case '*':
+                        
                         var img2 = new Image();
-
                         var x2 = cellWidth * j;
                         var y2 = cellHeight * i;
 
@@ -62,6 +64,7 @@
             }
             
             if (dest != undefined && maze.getValue(dest.row, dest.col) != '1') {
+                
                 ctx.clearRect(src.col * cellWidth, src.row * cellHeight, cellWidth, cellHeight);
                 var img3 = new Image();
 
@@ -75,8 +78,16 @@
                 };
                 img3.src = "resources/player.png";
 
+                if (maze.getValue(maze.pos.row, maze.pos.col) == '#') {
+                    onWin();
+                }
                 
             }
+        }
+
+        function onWin() {
+            JQ(document).off('keydown', keyDownHandler);
+            alert("You win!");
         }
 
     };
