@@ -72,9 +72,9 @@ var app = angular.module('MazeProject', ['ngRoute'])
 
 					$scope.startGame = function() {
 						var data = {
-							name: $scope.name,
-							rows: $scope.rows,
-							cols: $scope.cols
+							name: $scope.name.value,
+							rows: $scope.rows.value,
+							cols: $scope.cols.value
 						};
 						
 					// Ajax call to GenerateMaze
