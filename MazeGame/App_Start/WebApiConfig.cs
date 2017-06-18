@@ -15,6 +15,12 @@ namespace MazeGame
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
+                name: "GetMoves",
+                routeTemplate: "api/{controller}/{action}/{playerId}",
+                defaults: new {controller = "Multiplayer" }
+            );
+
+            config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }

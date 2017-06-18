@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    Player id: <input type="text" id="playerId" />
+    <button id="btnConnect">Connect</button><br />
+
+    <h2>Received Messages</h2>
+    <ul id="lstMessages"></ul>
+
+    <h2>Send Message</h2>
+    Opponent id: <input type="number" id="opponentId" /><br />
+    Enter text: <input type="text" id="msgText" /><br />
+    <button id="btnSendMessage">Send</button>
+
+
+    <script src="../Scripts/jquery-1.6.4.js"></script>
+    <script src="../Scripts/jquery.signalR-2.2.2.js"></script>
+    <script src="../signalr/hubs"></script>
+    <script>
+        var movesHub = $.connection.movesHub;
+
+        movesHub.client.gotMove = function (playerId, text) {
+            alert(text);
+            $("#lstMessages").append("<li><strong>" + playerId + "</strong>:" + text + "</li>");
+        };
+
+        $.connection.hub.start().done(function () {
+            $("#btnConnect").click(function () {
+                var dummy = $("#playerId")[0].value;
+                console.log(dummy);
+                var userIdFromToken = $("#playerId")[0].value;
+                movesHub.server.connect(userIdFromToken);
+            });
+
+            $("#btnSendMessage").click(function () {
+                var userIdFromToken = $("#playerId")[0].value;
+                var opponentIdFromToken = $("#opponentId")[0].value;
+                var text = $("#msgText")[0].value;
+                movesHub.server.sendMove(userIdFromToken, opponentIdFromToken, text);
+            });
+        });
+    </script>
+</body>
+</html>
