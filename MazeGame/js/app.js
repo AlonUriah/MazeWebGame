@@ -286,18 +286,54 @@ var app = angular.module('MazeProject', ['ngRoute'])
     					require: 'ngModel',
     					link: function(scope, element, attr, mCtrl) {
                             function rowsValidation(value) {
-                                var regex = /^[a-zA-Z]+$/;
+                                var regex = /^\d+/;
         							if (regex.test(value)) {
-        								scope.name.errors = [];
-          								mCtrl.$setValidity('letters', true);
+        								scope.rows.errors = [];
+                                        mCtrl.$setValidity('numbers', true);
+                                        if (value > 0) {
+                                            scope.rows.errors = [];
+                                            mCtrl.$setValidity('illegal', true);
+                                        } else {
+                                            if (scope.rows.errors.length == 0)
+                                                scope.rows.errors.push("Rows should be bigger than zero.");
+                                            mCtrl.$setValidity('illegal', false);
+                                        }
         							} else {
-        								if (scope.name.errors.length == 0)
-                                            scope.name.errors.push("Game's name should consist of letters only.");
-          								mCtrl.$setValidity('letters', false);
-        							}
+        								if (scope.rows.errors.length == 0)
+                                            scope.rows.errors.push("Rows should consist of numbers only.");
+          								mCtrl.$setValidity('numbers', false);
+                                    }
         							return value;
       							}
       							mCtrl.$parsers.push(rowsValidation);
+    					}
+  					};
+    })
+                .directive('uaCols', function() {
+ 					return {
+    					require: 'ngModel',
+    					link: function(scope, element, attr, mCtrl) {
+                            function colsValidation(value) {
+                                var regex = /^\d+/;
+        							if (regex.test(value)) {
+        								scope.cols.errors = [];
+                                        mCtrl.$setValidity('numbers', true);
+                                        if (value > 0) {
+                                            scope.cols.errors = [];
+                                            mCtrl.$setValidity('illegal', true);
+                                        } else {
+                                            if (scope.cols.errors.length == 0)
+                                                scope.cols.errors.push("Cols should be bigger than zero.");
+                                            mCtrl.$setValidity('illegal', false);
+                                        }
+        							} else {
+                                        if (scope.cols.errors.length == 0)
+                                            scope.cols.errors.push("Cols should consist of numbers only.");
+          								mCtrl.$setValidity('numbers', false);
+                                    }
+        							return value;
+      							}
+      							mCtrl.$parsers.push(colsValidation);
     					}
   					};
 				});
