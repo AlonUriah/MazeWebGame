@@ -72,9 +72,9 @@ var app = angular.module('MazeProject', ['ngRoute'])
 
 					$scope.startGame = function() {
 						var data = {
-							name: $scope.name,
-							rows: $scope.rows,
-							cols: $scope.cols
+							name: $scope.name.value,
+							rows: $scope.rows.value,
+							cols: $scope.cols.value
 						};
 						
 					// Ajax call to GenerateMaze
@@ -154,13 +154,12 @@ var app = angular.module('MazeProject', ['ngRoute'])
 						};
 						// ajax call with details
 
-						console.log(data);
-						JQ.post({ 
-						    url: 'api/Users/Register',
+						JQ.get({
+                            url: '/api/values/3',
                             data: data
 						})
 						.done(function(response) {
-						    console.log(response);
+							console.log(response);
 						})
 						.fail(function(error) {
 							console.log(error);

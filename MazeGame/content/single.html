@@ -22,10 +22,13 @@
                     </div>
                 </div>
 
-                <div class="form-group has-feedback">
+                <div ng-class="{'form-group has-feedback': !singleForm.cols.$dirty, 'form-group has-success has-feedback': singleForm.cols.$valid && singleForm.cols.$dirty, 'form-group has-error has-feedback': singleForm.cols.$invalid && singleForm.cols.$dirty}">
                     <label class="col-sm-4 control-label" for="input-cols">Cols</label>
                     <div class="col-sm-8">
-                        <input type="text" id="input-cols" ng-model="cols" class="form-control" name="cols" />
+                        <input type="text" id="input-cols" ng-model="cols.value" class="form-control" name="cols" required ua-cols/>
+                        <span ng-show="singleForm.cols.$valid && singleForm.cols.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
+                        <span ng-show="singleForm.cols.$invalid && singleForm.cols.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
+                        <span class="help-block" ng-repeat="error in cols.errors">{{error}}</span>
                     </div>
                 </div>
 
