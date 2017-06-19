@@ -148,18 +148,19 @@ var app = angular.module('MazeProject', ['ngRoute'])
 					// validation
 					$scope.register = function() {
 						var data = {
-							username: $scope.username,
-							password: $scope.password,
-							email: $scope.email
+							username: $scope.details.username.value,
+							password: $scope.details.password.value,
+							email: $scope.details.email.value
 						};
 						// ajax call with details
 
-						JQ.get({
-                            url: '/api/values/3',
+						console.log(data);
+						JQ.post({ 
+						    url: 'api/Users/Register',
                             data: data
 						})
 						.done(function(response) {
-							console.log(response);
+						    console.log(response);
 						})
 						.fail(function(error) {
 							console.log(error);

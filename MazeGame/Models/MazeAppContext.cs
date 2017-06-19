@@ -9,5 +9,7 @@ namespace MazeGame.Models
         }
 
         public DbSet<Move> Moves { get; set; }
+        public DbSet<User> Users { set; get; }
+        public DbSet<Game> Games { set; get; }
     }
 }

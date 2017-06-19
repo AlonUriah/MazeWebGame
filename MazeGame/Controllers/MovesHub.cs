@@ -28,7 +28,5 @@ namespace MazeGame.Controllers
                 return;
             Clients.Client(recipientId).gotMove(playerId, move);
         }
-
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace MazeGame.Models
 {
@@ -6,11 +7,15 @@ namespace MazeGame.Models
     {
         public int Id { set; get; }
         [Required]
+        public int GameId { set; get; }
+        [Required]
         public int PlayerId { set; get; }
         [Required]
         public int OpponentId { set; get; }
         [Required]
         public int Row { set; get; }
         public int Col { set; get; }
+        [Required]
+        public DateTime MoveTimestamp { set; get; }
     }
 }
