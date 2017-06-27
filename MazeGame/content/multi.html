@@ -1,73 +1,74 @@
 ﻿<div>
     <div class="container" style="width: 1000px">
-        <div class="col-sm-6">
-            <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="spinner"></span>
-            <canvas id="game" width="400" height="400" style="border:1px solid #000000" ua-maze></canvas>
-        </div>
-        <div class="col-sm-6">
-            <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="spinner"></span>
-            <canvas id="game" width="400" height="400" style="border:1px solid #000000" ua-maze></canvas>
-        </div>
 
-        <div class="col-sm-6">
-            <form name="singleForm" class="form-horizontal">
-                <div ng-class="{'form-group has-feedback': !singleForm.name.$dirty, 'form-group has-success has-feedback': singleForm.name.$valid && singleForm.name.$dirty, 'form-group has-error has-feedback': singleForm.name.$invalid && singleForm.name.$dirty}">
+
+        <div class="col-sm-4">
+            <form name="multiForm" class="form-horizontal">
+                <div ng-class="{'form-group has-feedback': !multiForm.name.$dirty, 'form-group has-success has-feedback': multiForm.name.$valid && multiForm.name.$dirty, 'form-group has-error has-feedback': multiForm.name.$invalid && multiForm.name.$dirty}">
                     <label class="col-sm-4 control-label" for="input-name">Name</label>
                     <div class="col-sm-8">
                         <input type="text" id="input-name" ng-model="name.value" class="form-control" name="name" required ua-game />
-                        <span ng-show="singleForm.name.$valid && singleForm.name.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
-                        <span ng-show="singleForm.name.$invalid && singleForm.name.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
+                        <span ng-show="multiForm.name.$valid && multiForm.name.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
+                        <span ng-show="multiForm.name.$invalid && multiForm.name.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
                         <span class="help-block" ng-repeat="error in name.errors">{{error}}</span>
                     </div>
                 </div>
 
-                <div ng-class="{'form-group has-feedback': !singleForm.rows.$dirty, 'form-group has-success has-feedback': singleForm.rows.$valid && singleForm.rows.$dirty, 'form-group has-error has-feedback': singleForm.rows.$invalid && singleForm.rows.$dirty}">
+                <div ng-class="{'form-group has-feedback': !multiForm.rows.$dirty, 'form-group has-success has-feedback': multiForm.rows.$valid && multiForm.rows.$dirty, 'form-group has-error has-feedback': multiForm.rows.$invalid && multiForm.rows.$dirty}">
                     <label class="col-sm-4 control-label" for="input-rows">Rows</label>
                     <div class="col-sm-8">
                         <input type="text" id="input-rows" ng-model="rows.value" class="form-control" name="rows" required ua-rows />
-                        <span ng-show="singleForm.rows.$valid && singleForm.rows.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
-                        <span ng-show="singleForm.rows.$invalid && singleForm.rows.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
+                        <span ng-show="multiForm.rows.$valid && multiForm.rows.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
+                        <span ng-show="multiForm.rows.$invalid && multiForm.rows.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
                         <span class="help-block" ng-repeat="error in rows.errors">{{error}}</span>
                     </div>
                 </div>
 
-                <div ng-class="{'form-group has-feedback': !singleForm.cols.$dirty, 'form-group has-success has-feedback': singleForm.cols.$valid && singleForm.cols.$dirty, 'form-group has-error has-feedback': singleForm.cols.$invalid && singleForm.cols.$dirty}">
+                <div ng-class="{'form-group has-feedback': !multiForm.cols.$dirty, 'form-group has-success has-feedback': multiForm.cols.$valid && multiForm.cols.$dirty, 'form-group has-error has-feedback': multiForm.cols.$invalid && multiForm.cols.$dirty}">
                     <label class="col-sm-4 control-label" for="input-cols">Cols</label>
                     <div class="col-sm-8">
                         <input type="text" id="input-cols" ng-model="cols.value" class="form-control" name="cols" required ua-cols />
-                        <span ng-show="singleForm.cols.$valid && singleForm.cols.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
-                        <span ng-show="singleForm.cols.$invalid && singleForm.cols.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
+                        <span ng-show="multiForm.cols.$valid && multiForm.cols.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
+                        <span ng-show="multiForm.cols.$invalid && multiForm.cols.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
                         <span class="help-block" ng-repeat="error in cols.errors">{{error}}</span>
                     </div>
                 </div>
 
-                <div class="form-group" id="btn-start-game">
+                <div class="form-group" id="btn-host-game">
                     <div class="col-sm-4" />
                     <div class="col-sm-8">
-                        <button ng-click="startGame()" ng-disabled="singleForm.$invalid || !singleForm.$dirty" class="btn btn-primary">Start Game!</button>
+                        <button ng-click="hostGame()" ng-disabled="multiForm.$invalid || !multiForm.$dirty" class="btn btn-primary">Host Game</button>
                     </div>
                 </div>
 
 
             </form>
-            <form name="solveForm" class="form-horizontal">
+            <form name="joinForm" class="form-horizontal">
                 <div class="form-group">
-                    <label for="sel1" class="col-sm-4 control-label">Algorithm</label>
+                    <label for="sel1" class="col-sm-4 control-label">Games</label>
                     <div class="col-sm-8">
-                        <select ng-model="algorithm.value" class="form-control" id="sel1" placeholder="Choose an algorithm:">
-                            <option value="0">BFS</option>
-                            <option value="1">DFS</option>
-                        </select>
+                        <select ng-options="game for game in games" ng-model="game" class="form-control" id="sel1" placeholder="Choose a game:"></select>
                     </div>
                 </div>
 
-                <div class="form-group" id="btn-solve-game">
+                <div class="form-group" id="btn-join-game">
                     <div class="col-sm-4" />
-                    <div class="col-sm-8">
-                        <button ng-disabled="solve" ng-click="solveGame()" class="btn btn-primary">Solve Game!</button>
+                    <div class="col-sm-4">
+                        <button ng-disabled="join" ng-click="joinGame()" class="btn btn-primary">Join Game</button>
+                    </div>
+                    <div class="col-sm-4">
+                        <button ng-disabled="refresh" ng-click="refreshList()" class="btn btn-primary">Refresh</button>
                     </div>
                 </div>
             </form>
+        </div>
+        <div class="col-sm-4">
+            <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="spinner-player"></span>
+            <canvas id="game" width="300" height="300" style="border:1px solid #000000" ua-maze="player"></canvas>
+        </div>
+        <div class="col-sm-4">
+            <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="spinner-rival"></span>
+            <canvas id="game" width="300" height="300" style="border:1px solid #000000" ua-maze="rival"></canvas>
         </div>
     </div>
 </div>
