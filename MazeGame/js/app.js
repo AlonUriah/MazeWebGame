@@ -1,8 +1,7 @@
 
 
-var JQ = jQuery.noConflict();
 
-var app = angular.module('MazeProject', ['ngRoute'])
+var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
 				.config(function($routeProvider, $locationProvider) {
 					$routeProvider
 						.when("/", {
@@ -20,15 +19,17 @@ var app = angular.module('MazeProject', ['ngRoute'])
 							templateUrl: 'content/about.html',
 							controller: 'aboutCtrl'
 						})
-						.when("/scores", {
-
+                        .when("/scores", {
+                            templateUrl: 'content/scores.html',
+                            controller: 'scoreCtrl'
 						})
 						.when("/single-mode", {
 							templateUrl: "content/single.html",
 							controller: 'singleCtrl'
 						})
-						.when("/multi-mode", {
-
+                        .when("/multi-mode", {
+                            templateUrl: 'content/multi.html',
+                            controller: 'multiCtrl'
 						})
 						.when("/settings", {
 
@@ -39,7 +40,28 @@ var app = angular.module('MazeProject', ['ngRoute'])
                         })
 						.otherwise({redirectTo: '/'});
 						$locationProvider.html5Mode(true);
-				})
+                })
+                .controller('multiCtrl', function ($scope, $http) {
+                    // Ajax call to have the scores
+
+
+
+                })
+                .controller('scoreCtrl', function ($scope, $http) {
+                    // Ajax call to have the scores
+
+                    $http({
+                        method: 'GET',
+                        url: ''
+                    }).then(function (response) {
+                        console.log(response);
+                    }, function (error) {
+                        console.log(error);
+                        });
+
+
+
+                })
 				.controller('loginCtrl', function($scope){
 					$scope.username = '';
 					$scope.password = '';
@@ -51,7 +73,8 @@ var app = angular.module('MazeProject', ['ngRoute'])
 				.controller('aboutCtrl', function($scope) {
 
 				})
-				.controller('singleCtrl', function($scope) {
+                .controller('singleCtrl', function ($scope, $http, usSpinnerService) {
+                    
                     $scope.name = {
                         value: '',
                         errors: []
@@ -64,56 +87,84 @@ var app = angular.module('MazeProject', ['ngRoute'])
                         value: '',
                         errors: []
                     };
-					$scope.algorithm = '';
-
-                    $scope.maze = undefined;
-
+                    $scope.algorithm = {
+                        value: undefined,
+                        errors: []
+                    };
+                    $scope.solve = true;
+                    
 					// validate
 
-					$scope.startGame = function() {
+                    $scope.startGame = function () {
+                        usSpinnerService.spin('spinner');
 						var data = {
 							name: $scope.name.value,
 							rows: $scope.rows.value,
-							cols: $scope.cols.value
+                            cols: $scope.cols.value,
 						};
-						
 					// Ajax call to GenerateMaze
-						JQ.get({
-							url: 'api/Default/5',
+                        $http({
+                            method: 'GET',
+                            url: 'api/Default/5',
+                            data: data
                         })
-                        .done(function (response) {
+                        .then(function (response) {
                             console.log(response);
-						})
-						.fail(function (error) {
-							alert('An error occured!');
-						});
-					
-                        var maze = {
-                            mazeData: "01101#00000001*000100100011001",
-                            rows: 5,
-                            cols: 6,
-                            pos: {
-                                row: 2,
-                                col: 2
-                            },
-                            startPos: {
-                                row: 2,
-                                col: 2
-                            },
-                            endPos: {
-                                row: 0,
-                                col: 5
+                            usSpinnerService.stop('spinner');
+                            $scope.maze = {
+                                mazeData: "01101#00000001*000100100011001",
+                                rows: 5,
+                                cols: 6,
+                                pos: {
+                                    row: 2,
+                                    col: 2
+                                },
+                                startPos: {
+                                    row: 2,
+                                    col: 2
+                                },
+                                endPos: {
+                                    row: 0,
+                                    col: 5
+                                }
+                            };
+                            $scope.maze.getValue = function (row, col) {
+                                return this.mazeData[row * this.cols + col];
+                            };
+                            }, function (error) {
+                                console.log(error);
+                                usSpinnerService.stop('spinner');
+                            });
+
+                        $scope.$watch('algorithm.value', function (newVal, oldVal) {
+                            if ((newVal == '0' || newVal == '1') && $scope.maze != undefined) {
+                                $scope.solve = false;
+                            } else {
+                                $scope.solve = true;
                             }
-                        };
-                        maze.getValue = function (row, col) {
-                            return this.mazeData[row * this.cols + col];
-                        };
-						JQ("#game").mazeBoard(maze);
+                        });
 
 					}
 
                     $scope.solveGame = function () {
-                        
+                        $scope.solve = true;
+                        var data = {
+                            algorithm: $scope.algorithm.value
+                        };
+                        // http request
+                        $http({
+                            method: 'GET',
+                            url: '',
+                            data: data
+                        })
+                        .then(function (response) {
+
+                            $scope.solution = "21112";
+                            console.log($scope.solution);
+                        }, function (error) {
+                            console.log(error);
+                            $scope.solve = false;
+                        });
                     }
 
 
@@ -153,20 +204,21 @@ var app = angular.module('MazeProject', ['ngRoute'])
 							email: $scope.details.email.value
 						};
 						// ajax call with details
-
-						JQ.get({
+                        
+                        $http({
+                            method: 'GET',
                             url: '/api/values/3',
                             data: data
 						})
-						.done(function(response) {
+						.then(function(response) {
 							console.log(response);
-						})
-						.fail(function(error) {
-							console.log(error);
-						});
+                            }, function (error) {
+                                console.log(error);
+                            });
+
 					}
 				})
-				.directive('uaUsername', function() {
+	  			.directive('uaUsername', function() {
  					return {
     					require: 'ngModel',
     					link: function(scope, element, attr, mCtrl) {
@@ -187,9 +239,9 @@ var app = angular.module('MazeProject', ['ngRoute'])
         									scope.details.username.errors.reg = "Username must start with a letter, and contain only alpha-numerical characters or semi-collon.";
         								mCtrl.$setValidity('regex', false);
         							}
-        							if (scope.details.username.errors.length == '' && scope.details.username.errors.reg == '') {
+        							
         								// Ajax call to validate user existance
-        							}
+        							
         							return value;
       							}
       							mCtrl.$parsers.push(userValidation);
@@ -260,7 +312,7 @@ var app = angular.module('MazeProject', ['ngRoute'])
       							mCtrl.$parsers.push(emailValidation);
     					}
   					};
-				})
+                })
                 .directive('uaGame', function() {
  					return {
     					require: 'ngModel',
@@ -280,7 +332,7 @@ var app = angular.module('MazeProject', ['ngRoute'])
       							mCtrl.$parsers.push(gameValidation);
     					}
   					};
-    })
+                })
                 .directive('uaRows', function() {
  					return {
     					require: 'ngModel',
@@ -308,7 +360,7 @@ var app = angular.module('MazeProject', ['ngRoute'])
       							mCtrl.$parsers.push(rowsValidation);
     					}
   					};
-    })
+                })
                 .directive('uaCols', function() {
  					return {
     					require: 'ngModel',
@@ -336,4 +388,129 @@ var app = angular.module('MazeProject', ['ngRoute'])
       							mCtrl.$parsers.push(colsValidation);
     					}
   					};
-				});
+                })
+                .directive('uaMaze', function ($document, $interval) {
+                    return {
+                        restrict: "A",
+                        link: function (scope, element) {
+                            var ctx;
+                            var rows, cols;
+                            var cellWidth, cellHeight;
+
+                            function moveOneStep(direction) {
+                                var maze = scope.maze;
+                                var src = scope.maze.pos;
+                                var dest = undefined;
+
+                                if (direction == "ArrowUp" && maze.pos.row > 0) {
+                                    dest = { row: maze.pos.row - 1, col: maze.pos.col };
+                                } else if (direction == "ArrowDown" && maze.pos.row < maze.rows - 1) {
+                                    dest = { row: maze.pos.row + 1, col: maze.pos.col };
+                                } else if (direction == "ArrowRight" && maze.pos.col < maze.cols - 1) {
+                                    dest = { row: maze.pos.row, col: maze.pos.col + 1 };
+                                } else if (direction == "ArrowLeft" && maze.pos.col > 0) {
+                                    dest = { row: maze.pos.row, col: maze.pos.col - 1 };
+                                }
+
+                                if (dest != undefined && maze.getValue(dest.row, dest.col) != '1') {
+
+                                    ctx.clearRect(src.col * cellWidth, src.row * cellHeight, cellWidth, cellHeight);
+                                    var img3 = new Image();
+
+                                    var x = cellWidth * dest.col;
+                                    var y = cellHeight * dest.row;
+
+                                    img3.onload = function () {
+                                        ctx.drawImage(img3, x, y, cellWidth, cellHeight);
+                                        maze.pos.row = dest.row;
+                                        maze.pos.col = dest.col;
+                                    };
+                                    img3.src = "resources/player.png";
+
+                                    if (maze.getValue(dest.row, dest.col) == '#') {
+                                        onWin();
+                                    }
+
+                                }
+                            }
+                            function onWin() {
+                                $document.unbind('keydown');
+                                alert("You win!");
+                            }
+
+                            scope.$watch('maze', function (newVal, oldVal) {
+                                if (newVal != undefined) {
+                                    console.log(scope);
+                                    ctx = element[0].getContext('2d');
+                                    rows = newVal.rows;
+                                    cols = newVal.cols;
+                                    cellWidth = element[0].width / cols;
+                                    cellHeight = element[0].height / rows;
+
+
+                                    for (var i = 0; i < rows; i++)
+                                        for (var j = 0; j < cols; j++) {
+                                            var val = scope.maze.mazeData[(i * cols) + j];
+                                            switch (val) {
+                                                case '1':
+                                                    ctx.fillRect(cellWidth * j, cellHeight * i, cellWidth, cellHeight);
+                                                    break;
+                                                case '#':
+                                                    var img1 = new Image();
+
+                                                    var x1 = cellWidth * j;
+                                                    var y1 = cellHeight * i;
+
+                                                    img1.onload = function () {
+                                                        ctx.drawImage(img1, x1, y1, cellWidth, cellHeight);
+                                                    };
+                                                    img1.src = "resources/end.png";
+                                                    break;
+                                                case '*':
+
+                                                    var img2 = new Image();
+                                                    var x2 = cellWidth * j;
+                                                    var y2 = cellHeight * i;
+
+                                                    img2.onload = function () {
+                                                        ctx.drawImage(img2, x2, y2, cellWidth, cellHeight);
+                                                    };
+                                                    img2.src = "resources/player.png";
+
+                                                    break;
+                                                default:
+                                                    console.log('Hi');
+                                                    break;
+                                            }
+                                        }
+
+                                    $document.bind('keydown', function (e) {
+                                        moveOneStep(e.key);
+                                    });
+
+
+
+                                }
+                            });
+                            scope.$watch('solution', function (newVal, oldVal) {
+                                if (newVal != undefined) {
+                                    var i = 0;
+                                    var stop = $interval(function () {
+                                        if (newVal[i] == 0)
+                                            moveOneStep("ArrowLeft");
+                                        else if (newVal[i] == 1)
+                                            moveOneStep("ArrowRight");
+                                        else if (newVal[i] == 2)
+                                            moveOneStep("ArrowUp");
+                                        else if (newVal[i] == 3)
+                                            moveOneStep("ArrowDown");
+                                        i++;
+                                        if (i >= newVal.length)
+                                            $interval.cancel(stop);
+                                    }, 300);
+                                }
+                            });
+
+                        }
+                    };
+                });

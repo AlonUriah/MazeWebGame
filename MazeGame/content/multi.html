@@ -1,11 +1,20 @@
-<div>
-    <div class="container" style="width: 700px">
+﻿<div>
+    <div class="container" style="width: 1000px">
+        <div class="col-sm-6">
+            <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="spinner"></span>
+            <canvas id="game" width="400" height="400" style="border:1px solid #000000" ua-maze></canvas>
+        </div>
+        <div class="col-sm-6">
+            <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="spinner"></span>
+            <canvas id="game" width="400" height="400" style="border:1px solid #000000" ua-maze></canvas>
+        </div>
+
         <div class="col-sm-6">
             <form name="singleForm" class="form-horizontal">
                 <div ng-class="{'form-group has-feedback': !singleForm.name.$dirty, 'form-group has-success has-feedback': singleForm.name.$valid && singleForm.name.$dirty, 'form-group has-error has-feedback': singleForm.name.$invalid && singleForm.name.$dirty}">
                     <label class="col-sm-4 control-label" for="input-name">Name</label>
                     <div class="col-sm-8">
-                        <input type="text" id="input-name" ng-model="name.value" class="form-control" name="name" required ua-game/>
+                        <input type="text" id="input-name" ng-model="name.value" class="form-control" name="name" required ua-game />
                         <span ng-show="singleForm.name.$valid && singleForm.name.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
                         <span ng-show="singleForm.name.$invalid && singleForm.name.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
                         <span class="help-block" ng-repeat="error in name.errors">{{error}}</span>
@@ -15,7 +24,7 @@
                 <div ng-class="{'form-group has-feedback': !singleForm.rows.$dirty, 'form-group has-success has-feedback': singleForm.rows.$valid && singleForm.rows.$dirty, 'form-group has-error has-feedback': singleForm.rows.$invalid && singleForm.rows.$dirty}">
                     <label class="col-sm-4 control-label" for="input-rows">Rows</label>
                     <div class="col-sm-8">
-                        <input type="text" id="input-rows" ng-model="rows.value" class="form-control" name="rows" required ua-rows/>
+                        <input type="text" id="input-rows" ng-model="rows.value" class="form-control" name="rows" required ua-rows />
                         <span ng-show="singleForm.rows.$valid && singleForm.rows.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
                         <span ng-show="singleForm.rows.$invalid && singleForm.rows.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
                         <span class="help-block" ng-repeat="error in rows.errors">{{error}}</span>
@@ -25,7 +34,7 @@
                 <div ng-class="{'form-group has-feedback': !singleForm.cols.$dirty, 'form-group has-success has-feedback': singleForm.cols.$valid && singleForm.cols.$dirty, 'form-group has-error has-feedback': singleForm.cols.$invalid && singleForm.cols.$dirty}">
                     <label class="col-sm-4 control-label" for="input-cols">Cols</label>
                     <div class="col-sm-8">
-                        <input type="text" id="input-cols" ng-model="cols.value" class="form-control" name="cols" required ua-cols/>
+                        <input type="text" id="input-cols" ng-model="cols.value" class="form-control" name="cols" required ua-cols />
                         <span ng-show="singleForm.cols.$valid && singleForm.cols.$dirty" class="glyphicon glyphicon-ok form-control-feedback" />
                         <span ng-show="singleForm.cols.$invalid && singleForm.cols.$dirty" class="glyphicon glyphicon-remove form-control-feedback" />
                         <span class="help-block" ng-repeat="error in cols.errors">{{error}}</span>
@@ -59,11 +68,6 @@
                     </div>
                 </div>
             </form>
-        </div>
-
-        <div class="col-sm-6">
-            <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="spinner"></span>
-            <canvas id="game" width="400" height="400" style="border:1px solid #000000" ua-maze></canvas>
         </div>
     </div>
 </div>
