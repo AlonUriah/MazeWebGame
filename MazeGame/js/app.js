@@ -41,7 +41,7 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
             .otherwise({ redirectTo: '/' });
         $locationProvider.html5Mode(true);
     })
-    .controller('multiCtrl', function ($scope, $http) {
+    .controller('multiCtrl', function ($scope, $http, $timeout) {
         // Ajax call to have the scores
 
         $scope.name = {
@@ -57,35 +57,98 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
             errors: []
         };
 
-        $scope.startGame = function () {
-            usSpinnerService.spin('spinner-player');
-            usSpinnerService.spin('spinner-rival');
+        $scope.maze = undefined;
+        $scope.game = undefined;
+        $scope.games = [];
+        $scope.refresh = false;
+        $scope.id = undefined;
+        $scope.opp_id = undefined;
+
+        $scope.movesHub = $.connection.movesHub;
+
+        $http({
+            method: 'GET',
+            url: 'api/Multiplayer/GetList'
+        }).then(function (response) {
+            $scope.games = response.data;
+        }, function (error) {
+            console.log(error);
+        });
+
+        $scope.refreshList = function () {
+            // Delay the timeout
+            $scope.refresh = true;
+            $timeout(function () {
+                $scope.refresh = false;
+            }, 3000);
+
+            $http({
+                method: 'GET',
+                url: 'api/Multiplayer/GetList'
+            }).then(function (response) {
+                $scope.games = response.data;
+            }, function (error) {
+                console.log(error);
+            });
+        }
+
+        $scope.hostGame = function () {
             var data = {
                 name: $scope.name.value,
                 rows: $scope.rows.value,
                 cols: $scope.cols.value,
+                sessionToken: '1'
             };
-            // Ajax call to GenerateMaze
+
             $http({
                 method: 'POST',
-                url: 'api/Singleplayer/CreateGame',
+                url: '/api/Multiplayer/StartNewGame',
                 data: data
             })
                 .then(function (response) {
-                    console.log(response);
-                    usSpinnerService.stop('spinner-player');
-                    usSpinnerService.stop('spinner-rival');
                     $scope.maze = response.data;
                     $scope.maze.getValue = function (row, col) {
-                        return this.Maze[row * this.cols + col];
+                        return this.Maze[row * this.Cols + col];
                     };
+                    $.connection.hub.start().then(function () {
+                        $scope.id = $scope.maze.Player1Id;
+                        $scope.opp_id = $scope.maze.Player2Id;
+                        console.log($scope.maze);
+                        $scope.movesHub.server.connect($scope.maze.Player1Id);
+                    });
                 }, function (error) {
                     console.log(error);
-                    usSpinnerService.stop('spinner-player');
-                    usSpinnerService.stop('spinner-rival');
                 });
 
         }
+
+        $scope.joinGame = function () {
+
+            var data = {
+                name: $scope.game,
+                sessionToken: '2'
+            };
+
+            $http({
+                method: 'POST',
+                url: 'api/Multiplayer/JoinGame',
+                data: data
+            })
+                .then(function (response) {
+                    $scope.maze = response.data;
+                    $scope.maze.getValue = function (row, col) {
+                        return this.Maze[row * this.Cols + col];
+                    };
+                    $.connection.hub.start().then(function () {
+                        $scope.id = $scope.maze.Player2Id;
+                        $scope.opp_id = $scope.maze.Player1Id;
+                        $scope.movesHub.server.connect($scope.maze.Player2Id);
+                    });
+                }, function (error) {
+                    console.log(error);
+                });
+        }
+
 
     })
     .controller('scoreCtrl', function ($scope, $http) {
@@ -99,9 +162,6 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
         }, function (error) {
             console.log(error);
         });
-
-
-
     })
     .controller('loginCtrl', function ($scope) {
         $scope.username = '';
@@ -133,10 +193,11 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
             errors: []
         };
         $scope.solve = true;
-
+        $scope.solve_clicked = false;
         // validate
 
         $scope.startGame = function () {
+            $scope.solve_clicked = false;
             usSpinnerService.spin('spinner');
             var data = {
                 name: $scope.name.value,
@@ -150,11 +211,10 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                 data: data
             })
                 .then(function (response) {
-                    console.log(response);
                     usSpinnerService.stop('spinner');
                     $scope.maze = response.data;
                     $scope.maze.getValue = function (row, col) {
-                        return this.Maze[row * this.cols + col];
+                        return this.Maze[row * this.Cols + col];
                     };
                 }, function (error) {
                     console.log(error);
@@ -162,8 +222,9 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                 });
 
             $scope.$watch('algorithm.value', function (newVal, oldVal) {
-                if ((newVal == '0' || newVal == '1') && $scope.maze != undefined) {
+                if ((newVal == '0' || newVal == '1') && $scope.maze != undefined && !$scope.solve_clicked) {
                     $scope.solve = false;
+                    $scope.solve_clicked = true;
                 } else {
                     $scope.solve = true;
                 }
@@ -174,7 +235,7 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
         $scope.solveGame = function () {
             $scope.solve = true;
             var data = {
-                name: $scope.name.value,
+                game: $scope.maze,
                 algorithm: $scope.algorithm.value
             };
             // http request
@@ -184,6 +245,7 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                 data: data
             })
                 .then(function (response) {
+                    $scope.solution = response.data;
                     console.log($scope.solution);
                 }, function (error) {
                     console.log(error);
@@ -278,11 +340,11 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                                 scope.details.username.errors.unique = "Username already exists.";
                             mCtrl.$setValidity('unique', false);
                         }
-                        }, function (error) {
-                            console.log(error);
-                        });
+                    }, function (error) {
+                        console.log(error);
+                    });
 
-                    
+
                     // Ajax call to validate user existance
 
                     return value;
@@ -447,16 +509,15 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
 
                     if (direction === "ArrowUp" && maze.CurrentPos.Row > 0) {
                         dest = { row: maze.CurrentPos.Row - 1, col: maze.CurrentPos.Col };
-                    } else if (direction === "ArrowDown" && maze.CurrentPos.Row < maze.rows - 1) {
+                    } else if (direction === "ArrowDown" && maze.CurrentPos.Row < maze.Rows - 1) {
                         dest = { row: maze.CurrentPos.Row + 1, col: maze.CurrentPos.Col };
-                    } else if (direction === "ArrowRight" && maze.CurrentPos.Col < maze.cols - 1) {
+                    } else if (direction === "ArrowRight" && maze.CurrentPos.Col < maze.Cols - 1) {
                         dest = { row: maze.CurrentPos.Row, col: maze.CurrentPos.Col + 1 };
                     } else if (direction === "ArrowLeft" && maze.CurrentPos.Col > 0) {
                         dest = { row: maze.CurrentPos.Row, col: maze.CurrentPos.Col - 1 };
                     }
 
                     if (dest !== undefined && maze.getValue(dest.row, dest.col) !== '1') {
-
                         ctx.clearRect(src.Col * cellWidth, src.Row * cellHeight, cellWidth, cellHeight);
                         var img3 = new Image();
 
@@ -465,23 +526,21 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
 
                         img3.onload = function () {
                             ctx.drawImage(img3, x, y, cellWidth, cellHeight);
-                            maze.CurrentPos.Row = dest.row;
-                            maze.CurrentPos.Col = dest.col;
                         };
                         img3.src = "resources/player.png";
-
-                        if (maze.getValue(dest.row, dest.col) === '#') {
-                            onWin();
-                        }
+                        maze.CurrentPos.Row = dest.row;
+                        maze.CurrentPos.Col = dest.col;
 
                     }
                 }
                 function onWin() {
                     $document.unbind('keydown');
                     alert("You win!");
+                    // Todo : AJAX CALL TO SERVER
                 }
 
                 scope.$watch('maze', function (newVal, oldVal) {
+                    console.log(newVal);
                     if (newVal !== undefined) {
                         ctx = element[0].getContext('2d');
                         rows = newVal.Rows;
@@ -494,6 +553,9 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                             for (var j = 0; j < cols; j++) {
                                 var val = scope.maze.Maze[(i * cols) + j];
                                 switch (val) {
+                                    case '0':
+                                        ctx.clearRect(cellWidth * j, cellHeight * i, cellWidth, cellHeight);
+                                        break;
                                     case '1':
                                         ctx.fillRect(cellWidth * j, cellHeight * i, cellWidth, cellHeight);
                                         break;
@@ -525,16 +587,37 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                                 }
                             }
 
-                        $document.bind('keydown', function (e) {
-                            moveOneStep(e.key);
-                        });
-
-
+                        if (attrs.uaMaze != "rival") {
+                            $document.bind('keydown', function (e) {
+                                moveOneStep(e.key);
+                                console.log(scope.id, scope.opp_id);
+                                scope.movesHub.server.sendMove(scope.id, scope.opp_id, e.key);
+                                if (scope.maze.CurrentPos.Row == scope.maze.End.Row &&
+                                    scope.maze.CurrentPos.Col == scope.maze.End.Col)
+                                    onWin();
+                            });
+                        } else if (attrs.uaMaze == "rival") {
+                            console.log("rival");
+                            scope.movesHub.client.gotMove = function (playerId, key) {
+                                console.log(key);
+                                moveOneStep(key);
+                                if (scope.maze.CurrentPos.Row == scope.maze.End.Row &&
+                                    scope.maze.CurrentPos.Col == scope.maze.End.Col)
+                                    onWin();
+                            };
+                        }
 
                     }
                 });
                 scope.$watch('solution', function (newVal, oldVal) {
                     if (newVal !== undefined) {
+                        // Restart the player's position
+                        var pos = { row: scope.maze.CurrentPos.Row, col: scope.maze.CurrentPos.Col };
+                        ctx.clearRect(pos.col * cellWidth, pos.row * cellHeight, cellWidth, cellHeight);
+                        scope.maze.CurrentPos.Row = scope.maze.Start.Row;
+                        scope.maze.CurrentPos.Col = scope.maze.Start.Col;
+                        // Cancel the keyboard events.
+                        $document.unbind('keydown');
                         var i = 0;
                         var stop = $interval(function () {
                             if (newVal[i] === '0')
@@ -551,6 +634,9 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                         }, 300);
                     }
                 });
+
+
+                
 
             }
         };
