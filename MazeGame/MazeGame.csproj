@@ -49,10 +49,10 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework.PowerShell">
-      <HintPath>H:\Documents\Visual Studio 2015\Projects\MessangerApp\packages\EntityFramework.6.1.3\tools\EntityFramework.PowerShell.dll</HintPath>
+      <HintPath>D:\Chrome Downloads\EntityFramework.PowerShell.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.PowerShell.Utility">
-      <HintPath>H:\Documents\Visual Studio 2015\Projects\MessangerApp\packages\EntityFramework.6.1.3\tools\EntityFramework.PowerShell.Utility.dll</HintPath>
+      <HintPath>D:\Chrome Downloads\EntityFramework.PowerShell.Utility.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0-beta1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
@@ -63,16 +63,14 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="MazeGeneratorLib">
-      <HintPath>H:\Documents\Visual Studio 2012\Projects\AP2_Sol\MazeGeneratorLib.dll</HintPath>
+      <HintPath>D:\Chrome Downloads\MazeGeneratorLib.dll</HintPath>
     </Reference>
     <Reference Include="MazeLib">
-      <HintPath>H:\Documents\Visual Studio 2012\Projects\AP2_Sol\MazeLib.dll</HintPath>
+      <HintPath>D:\Chrome Downloads\MazeLib.dll</HintPath>
     </Reference>
-    <Reference Include="MazeProjectLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\MazeProjectLibrary\bin\Debug\MazeProjectLibrary.dll</HintPath>
+    <Reference Include="Microsoft.AspNet.Scaffolding.EntityFramework.12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=x86">
+      <HintPath>D:\Chrome Downloads\Microsoft.AspNet.Scaffolding.EntityFramework.12.0.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.Scaffolding.EntityFramework.12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=x86" />
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.2.2\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
       <Private>True</Private>
@@ -153,7 +151,6 @@
     <Content Include="Global.asax" />
     <Content Include="index.html" />
     <Content Include="js\app.js" />
-    <Content Include="js\plugin.js" />
     <Content Include="resources\end.png" />
     <Content Include="resources\player.png" />
     <Content Include="resources\rival.png" />
@@ -240,6 +237,16 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MazeProjectLibrary\MazeProjectLibrary.csproj">
+      <Project>{28b05a9e-9456-4b4c-8af8-0e8191805268}</Project>
+      <Name>MazeProjectLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SearchAlgorithmsLib\SearchAlgorithmsLib.csproj">
+      <Project>{45f9dba2-1f45-4795-900b-a6ec3cbd7131}</Project>
+      <Name>SearchAlgorithmsLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
