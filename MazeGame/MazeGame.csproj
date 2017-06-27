@@ -143,7 +143,6 @@
     <Content Include="bootstrap\js\npm.js" />
     <Content Include="content\login.html" />
     <Content Include="content\multiDummy.html" />
-    <Content Include="content\multiplayerTryout.html" />
     <Content Include="content\register.html" />
     <Content Include="content\single.html" />
     <Content Include="content\try.php" />
@@ -170,7 +169,7 @@
   <ItemGroup>
     <Compile Include="App_Start\Startup.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\AuthenticationController.cs" />
+    <Compile Include="Controllers\AuthenticatorController.cs" />
     <Compile Include="Controllers\DefaultController.cs" />
     <Compile Include="Controllers\MovesHub.cs" />
     <Compile Include="Controllers\MultiplayerController.cs" />

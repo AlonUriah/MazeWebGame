@@ -19,10 +19,22 @@ namespace MazeGame.Controllers
         [HttpPost]
         public IHttpActionResult StartGame(JObject startGameForm)
         {
-            var sessionToken = startGameForm["sessionToken"].Value<string>();
-            var name = startGameForm["name"].Value<string>();
-            var rows = startGameForm["rows"].Value<int>();
-            var cols = startGameForm["cols"].Value<int>();
+            string sessionToken;
+            string name;
+            int rows;
+            int cols;
+
+            try
+            {
+                sessionToken = startGameForm["sessionToken"].Value<string>();
+                name = startGameForm["name"].Value<string>();
+                rows = startGameForm["rows"].Value<int>();
+                cols = startGameForm["cols"].Value<int>();
+            }
+            catch (Exception)
+            {
+                return BadRequest("Could not found one or more parameters");
+            }
 
             var host = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(sessionToken));
             if (host == null)
@@ -179,6 +191,48 @@ namespace MazeGame.Controllers
             //_db.Moves.Add(move);
             //_db.SaveChanges();
             return CreatedAtRoute("DefaultApi", new { id = move.PlayerId }, move);
+        }
+
+        [Route("api/Multiplayer/PlayerWon")]
+        [HttpGet]
+        public IHttpActionResult PlayerWon(string sessionToken)
+        {
+            var winner = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(sessionToken, StringComparison.OrdinalIgnoreCase));
+
+            if(winner == null)
+            {
+                return BadRequest("Your session has expired. Could not report win");
+            }
+
+            var game = _db.Games.FirstOrDefault(g => g.Player1Id == winner.Id || g.Player2Id == winner.Id);
+
+            if(game == null)
+            {
+                return BadRequest("Could not find game record.");
+            }
+
+            int? loserId = (game.Player1Id == winner.Id) ? game.Player2Id : game.Player1Id;
+            var loser = _db.Users.FirstOrDefault(u => u.Id == loserId);
+
+            if(loser == null)
+            {
+                return BadRequest("Could not update opponent score");
+            }
+
+            loser.Loses++;
+            loser.Rate--;
+            winner.Wins++;
+            winner.Rate++;
+
+            try
+            {
+                _db.SaveChanges();
+                return Ok();
+            }
+            catch (Exception)
+            {
+                return BadRequest("Could not update users scores");
+            }
         }
 
         protected override void Dispose(bool disposing)

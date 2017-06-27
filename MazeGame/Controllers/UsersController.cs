@@ -124,16 +124,21 @@ namespace MazeGame.Controllers
             }
         }
 
-        [Route("api/Users/Records")]
+        [Route("api/Users/GetRecords")]
         [HttpGet]
-        public IEnumerable<User> GetRecords(int recordsNum)
+        public IEnumerable<JObject> GetRecords(int recordsNum)
         {
             var users = _db.Users.OrderByDescending(u => u.Rate).ToArray();
-            var topRecords = new List<User>();
+            var topRecords = new List<JObject>();
 
             for(int i=0; i<recordsNum && i < users.Length; i++)
             {
-                topRecords.Add(users[i]);
+                var user = new JObject();
+                user["Rank"] = users[i].Rate;
+                user["Username"] = users[i].Username;
+                user["Wins"] = users[i].Wins;
+                user["Losses"] = users[i].Loses;
+                topRecords.Add(user);
             }
 
             return topRecords;
