@@ -13,7 +13,7 @@ namespace MazeGame.Models
         [Required]
         public int Cols { set; get; }
         [Required]
-        public string MazeString { set; get; }
+        public string Maze { set; get; }
         [Required]
         public int Player1Id { set; get; }
         public int? Player2Id { set; get; }

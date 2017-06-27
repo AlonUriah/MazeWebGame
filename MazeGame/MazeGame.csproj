@@ -194,10 +194,13 @@
     <Compile Include="Migrations\201706201745405_200620172045.Designer.cs">
       <DependentUpon>201706201745405_200620172045.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201706272205566_280620170105.cs" />
+    <Compile Include="Migrations\201706272205566_280620170105.Designer.cs">
+      <DependentUpon>201706272205566_280620170105.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Game.cs" />
     <Compile Include="Models\MazeAppContext.cs" />
-    <Compile Include="Models\Move.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -232,6 +235,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201706201745405_200620172045.resx">
       <DependentUpon>201706201745405_200620172045.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201706272205566_280620170105.resx">
+      <DependentUpon>201706272205566_280620170105.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -48,7 +48,7 @@ namespace MazeGame.Controllers
                 Rows = rows,
                 Cols = cols,
                 Player1Id = host.Id,
-                MazeString = mazeJson["Maze"].Value<string>() };
+                Maze = mazeJson["Maze"].Value<string>() };
 
             try
             {
@@ -68,7 +68,23 @@ namespace MazeGame.Controllers
                     didOpponentJoin = true;
             }
 
-            return Ok(game);
+            var gameJson = new JObject();
+            gameJson["Id"] = game.Id;
+            gameJson["Name"] = game.Name;
+            gameJson["Rows"] = game.Rows;
+            gameJson["Cols"] = game.Cols;
+            gameJson["Player1Id"] = game.Player1Id;
+            gameJson["Player2Id"] = game.Player2Id;
+            gameJson["Maze"] = game.Maze;
+            gameJson["Start"] = mazeJson["Start"];
+            gameJson["End"] = mazeJson["End"];
+
+            var currentPos = new JObject();
+            currentPos["Row"] = ((JObject)mazeJson["Start"])["Row"];
+            currentPos["Col"] = ((JObject)mazeJson["Start"])["Col"];
+            gameJson["CurrentPos"] = currentPos;
+
+            return Ok(gameJson);
         }
 
         [Route("api/Multiplayer/JoinGame")]
@@ -145,54 +161,6 @@ namespace MazeGame.Controllers
             return gameNames;
         }
 
-        [ActionName("GetMoves")]
-        public IEnumerable<Move> GetUserMoves(int playerId)
-        {
-            return _db.Moves.Where(m => m.PlayerId == playerId);
-        }
-
-        [ResponseType(typeof(Move))]
-        public IHttpActionResult PostMove(JObject moveJason)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var sessionToken = moveJason["sessionToken"].Value<string>();
-            var user = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(sessionToken));
-
-            if(user == null)
-            {
-                return BadRequest("Session is expired. Please re-login");
-            }
-
-            var game = _db.Games.FirstOrDefault(g => g.Player1Id == user.Id || g.Player2Id == user.Id);
-
-            if(game == null)
-            {
-                return BadRequest();
-            }
-
-            int opponentId = (game.Player1Id == user.Id) ? (game.Player2Id.Value) : (game.Player1Id);
-
-            var move = new Move()
-            {
-                PlayerId = user.Id,
-                Col = moveJason["col"].Value<int>(),
-                Row = moveJason["row"].Value<int>(),
-                OpponentId = opponentId,
-                MoveTimestamp = DateTime.Now,
-                GameId = game.Id
-            };
-
-            _movesHub.SendMove(user.Id, opponentId, move.ToString());
-
-            //_db.Moves.Add(move);
-            //_db.SaveChanges();
-            return CreatedAtRoute("DefaultApi", new { id = move.PlayerId }, move);
-        }
-
         [Route("api/Multiplayer/PlayerWon")]
         [HttpGet]
         public IHttpActionResult PlayerWon(string sessionToken)
@@ -209,6 +177,15 @@ namespace MazeGame.Controllers
             if(game == null)
             {
                 return BadRequest("Could not find game record.");
+            }
+
+            try
+            {
+                _db.Games.Remove(game);
+            }
+            catch (Exception)
+            {
+                return BadRequest("Could not delete game");
             }
 
             int? loserId = (game.Player1Id == winner.Id) ? game.Player2Id : game.Player1Id;
