@@ -1,18 +1,28 @@
 ﻿using MazeGeneratorLib;
 using MazeLib;
 using MazeProjectLibrary.Common;
+using SearchAlgorithmsLib;
 using SearchAlgorithmsLib.Interfaces;
 using SearchAlgorithmsLib.Searchers;
 using Newtonsoft.Json.Linq;
+using System.Text;
 
 namespace MazeProjectLibrary
 {
     public static class MazeHandler
     {
-        public static string GenerateMaze(int rows, int cols)
+        public static JObject GenerateMaze(int rows, int cols)
         {
             var maze = new DFSMazeGenerator().Generate(rows, cols);
-            return maze.ToJSON();
+            var mazeJson = JObject.Parse(maze.ToJSON());
+
+            var currentPos = new JObject();
+            currentPos["Row"] = ((JObject)mazeJson["Start"])["Row"];
+            currentPos["Col"] = ((JObject)mazeJson["Start"])["Col"];
+
+            mazeJson["CurrentPos"] = currentPos;
+
+            return mazeJson;
         }
 
         public static string SolveMaze(string maze, string algorithm)
@@ -29,8 +39,40 @@ namespace MazeProjectLibrary
                 searcher = new DFS<Position>();
             }
 
-            return searcher.Search(searchableMaze).ToJason().ToString();
+            var solution = searcher.Search(searchableMaze);
+            return BuildRelativeSolution(solution);
         }
 
+        private static string BuildRelativeSolution(Solution<Position> solution)
+        {
+            var relativeSolutionBuilder = new StringBuilder();
+            State<Position> currentState = solution.States.Pop();
+            int directionSymbol; 
+
+            while (solution.States.Count > 0)
+            {
+                var nextState = solution.States.Pop();
+                switch (nextState.Value.Subtract(currentState.Value))
+                {
+                    case Direction.Down:
+                        directionSymbol = 3;
+                        break;
+                    case Direction.Up:
+                        directionSymbol = 2;
+                        break;
+                    case Direction.Left:
+                        directionSymbol = 0;
+                        break;
+                    default:
+                    case Direction.Right:
+                        directionSymbol = 1;
+                        break;
+                }
+                relativeSolutionBuilder.Append(directionSymbol);
+                currentState = nextState;
+            }
+
+            return relativeSolutionBuilder.ToString();
+        }
     }
 }

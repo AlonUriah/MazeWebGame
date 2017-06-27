@@ -13,6 +13,15 @@ namespace MazeGame.Controllers
         private readonly object _locker = new object();
         private MazeAppContext _db = new MazeAppContext();
 
+        [Route("api/Users/ValidateUsername")]
+        [HttpGet]
+        public IHttpActionResult ValidateUsername(string username)
+        {
+            var user = _db.Users.FirstOrDefault(u => u.Username.Equals(username));
+            // Return false if this username is invalid (in use), true otherwise
+            return Ok(user != null ? false : true);
+        }
+
         [Route("api/Users/Register")]
         [HttpPost]
         public IHttpActionResult Register(JObject registerForm)

@@ -7,11 +7,12 @@ using MazeGame.Models;
 
 namespace MazeGame.Controllers
 {
-    [RoutePrefix("/api/Multiplayer/")]
+    [RoutePrefix("api/Multiplayer")]
     public class AuthenticationController : ApiController
     {
         private readonly MazeAppContext _db = new MazeAppContext();
 
+        [Route("")]
         public IHttpActionResult Validate(HttpRequest request)
         {
             var sessionToken = request.Params["sessionToken"];

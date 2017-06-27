@@ -16,14 +16,20 @@ namespace MazeGame.Controllers
             var name = gameForm["name"].Value<string>();
             var rows = gameForm["rows"].Value<int>();
             var cols = gameForm["cols"].Value<int>();
-            var algorithm = gameForm["algorithm"].Value<string>();
 
             var maze = MazeHandler.GenerateMaze(rows, cols);
-            var solution = MazeHandler.SolveMaze(maze,algorithm);
+            return Ok(maze);
+        }
 
-            var game = JObject.Parse(maze);
-            game["Solution"] = solution;
-            return Ok(game);
+        //append Post
+        [Route("api/Singleplayer/Solve")]
+        [HttpPost]
+        public IHttpActionResult Solve(JObject game)
+        {
+            JObject jasonGame = (JObject)game["game"];
+            var algorithm = game["algorithm"].Value<int>();
+            var solution = MazeHandler.SolveMaze(jasonGame.ToString(), algorithm == 0 ? "bfs" : "dfs");
+            return Ok(solution);
         }
     }
 }

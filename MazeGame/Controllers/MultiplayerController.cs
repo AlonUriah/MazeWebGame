@@ -30,8 +30,7 @@ namespace MazeGame.Controllers
                 return BadRequest("Your session has expired. Please login again.");
             }
 
-            var mazeStr = MazeHandler.GenerateMaze(rows, cols);
-            var mazeJson = JObject.Parse(mazeStr);
+            var mazeJson = MazeHandler.GenerateMaze(rows, cols);
             var game = new Game() {
                 Name = name,
                 Rows = rows,
@@ -43,19 +42,28 @@ namespace MazeGame.Controllers
             {
                 _db.Games.Add(game);
                 _db.SaveChanges();
-                return Ok(game);
             }
             catch (Exception)
             {
                 return BadRequest("Could not create this game, please try again later");
             }
+
+            // Busy wait until opponent join before returning game
+            bool didOpponentJoin = false;
+            while (!didOpponentJoin)
+            {
+                if (_db.Games.FirstOrDefault(g => g.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && g.Player2Id != null) != null)
+                    didOpponentJoin = true;
+            }
+
+            return Ok(game);
         }
 
         [Route("api/Multiplayer/JoinGame")]
         [HttpPost]
         public IHttpActionResult JoinGame(JObject joinGameForm)
         {
-            var sessionToken = joinGameForm["usertoken"].Value<string>();
+            var sessionToken = joinGameForm["sessionToken"].Value<string>();
             var gameName = joinGameForm["name"].Value<string>();
 
             var user = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(sessionToken));
@@ -89,9 +97,9 @@ namespace MazeGame.Controllers
 
         [Route("api/Multiplayer/GetGameState")]
         [HttpGet]
-        public IHttpActionResult GetGameState(string session)
+        public IHttpActionResult GetGameState(string sessionToken)
         {
-            var user = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(session));
+            var user = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(sessionToken));
             if(user == null)
             {
                 return BadRequest("Your session has expired. Please re-login");
@@ -110,12 +118,19 @@ namespace MazeGame.Controllers
             return Ok(isReady ? "Ready" : "Waiting for player...");
         }
 
-        [Route("api/Multiplayer/GetGames")]
+        [Route("api/Multiplayer/GetList")]
         [HttpGet]
-        public IEnumerable<Game> GetGames()
+        public IEnumerable<string> GetList()
         {
-            // Return only available games
-            return _db.Games.Where(g => g.Player2Id == null);
+            var gameNames = new List<string>();
+            var games = _db.Games.Where(g => g.Player2Id == null);
+            
+            foreach(var game in games)
+            {
+                gameNames.Add(game.Name);
+            }
+
+            return gameNames;
         }
 
         [ActionName("GetMoves")]
