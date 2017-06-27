@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MazeGame", "MazeGame\MazeGame.csproj", "{9C87251D-D352-4FE0-892F-57508ACC9568}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MazeProjectLibrary", "MazeProjectLibrary\MazeProjectLibrary.csproj", "{28B05A9E-9456-4B4C-8AF8-0E8191805268}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchAlgorithmsLib", "..\MazeProject\SearchAlgorithmsLib\SearchAlgorithmsLib.csproj", "{45F9DBA2-1F45-4795-900B-A6EC3CBD7131}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{9C87251D-D352-4FE0-892F-57508ACC9568}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C87251D-D352-4FE0-892F-57508ACC9568}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C87251D-D352-4FE0-892F-57508ACC9568}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28B05A9E-9456-4B4C-8AF8-0E8191805268}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28B05A9E-9456-4B4C-8AF8-0E8191805268}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28B05A9E-9456-4B4C-8AF8-0E8191805268}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28B05A9E-9456-4B4C-8AF8-0E8191805268}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45F9DBA2-1F45-4795-900B-A6EC3CBD7131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45F9DBA2-1F45-4795-900B-A6EC3CBD7131}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45F9DBA2-1F45-4795-900B-A6EC3CBD7131}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45F9DBA2-1F45-4795-900B-A6EC3CBD7131}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -21,9 +21,9 @@ namespace MazeGame.Controllers
             var maze = MazeHandler.GenerateMaze(rows, cols);
             var solution = MazeHandler.SolveMaze(maze,algorithm);
 
-            var mazeJason = JObject.FromObject(maze);
-            mazeJason["Solution"] = solution;
-            return Ok(mazeJason);
+            var game = JObject.Parse(maze);
+            game["Solution"] = solution;
+            return Ok(game);
         }
     }
 }

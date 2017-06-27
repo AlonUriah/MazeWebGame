@@ -3,12 +3,13 @@ using System.Linq;
 using System.Web.Http;
 using Newtonsoft.Json.Linq;
 using MazeGame.Models;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace MazeGame.Controllers
 {
     public class UsersController : ApiController
     {
-        private readonly DateTime _time; 
         private readonly object _locker = new object();
         private MazeAppContext _db = new MazeAppContext();
 
@@ -16,11 +17,28 @@ namespace MazeGame.Controllers
         [HttpPost]
         public IHttpActionResult Register(JObject registerForm)
         {
-            string username = registerForm["username"].Value<string>();
-            string password = registerForm["password"].Value<string>();
-            string email = registerForm["email"].Value<string>();
+            string username;
+            string password;
+            string email;
 
-            var user = new User() { Username = username, Password = password, Email = email };
+            try
+            {
+                username = registerForm["username"].Value<string>();
+                password = registerForm["password"].Value<string>();
+                email = registerForm["email"].Value<string>();
+            }
+            catch (Exception)
+            {
+                return BadRequest("Bad request structure. Missing username/password/email.");
+            }
+
+            byte[] passByte = Encoding.UTF8.GetBytes(password);
+            var shaProvider = new SHA1CryptoServiceProvider();
+            byte[] encrypted = shaProvider.ComputeHash(passByte);
+
+            var user = new User() { Username = username, Password = Encoding.UTF8.GetString(encrypted), Email = email };
+            bool isUsernameTaken = _db.Users.FirstOrDefault(u => u.Username.Equals(username)) != null;
+            
             try
             {
                 _db.Users.Add(user);
@@ -37,10 +55,25 @@ namespace MazeGame.Controllers
         [HttpPost]
         public IHttpActionResult Login(JObject loginForm)
         {
-            var username = loginForm["username"].Value<string>();
-            var password = loginForm["password"].Value<string>();
+            string username;
+            string password;
 
-            var user = _db.Users.FirstOrDefault(u => u.Username.Equals(username) && u.Password.Equals(password));
+            try
+            {
+                username = loginForm["username"].Value<string>();
+                password = loginForm["password"].Value<string>();
+            }
+            catch (Exception)
+            {
+                return BadRequest("Bad request structure. Missing username/password.");
+            }
+
+            byte[] passByte = Encoding.UTF8.GetBytes(password);
+            var shaProvider = new SHA1CryptoServiceProvider();
+            byte[] decrypted = shaProvider.ComputeHash(passByte);
+            string decryptedStr = Encoding.UTF8.GetString(decrypted);
+
+            var user = _db.Users.FirstOrDefault(u => u.Username.Equals(username) && u.Password.Equals(decryptedStr));
             if(user == null)
             {
                 return BadRequest("Username or Password are incorrect.");
@@ -60,7 +93,7 @@ namespace MazeGame.Controllers
 
         [Route("api/Users/Logout")]
         [HttpGet]
-        public IHttpActionResult Logout(JObject sessionToken)
+        public IHttpActionResult Logout(string sessionToken)
         {
             var user = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(sessionToken));
 
@@ -85,7 +118,7 @@ namespace MazeGame.Controllers
         {
             lock (_locker)
             {
-                return $"{DateTime.Now:yyyyMMddHHmmsszzz}";
+                return $"{Guid.NewGuid()}";
             }
         }
     }

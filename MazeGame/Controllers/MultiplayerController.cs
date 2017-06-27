@@ -15,7 +15,7 @@ namespace MazeGame.Controllers
         private MovesHub _movesHub = new MovesHub();
         private MazeAppContext _db = new MazeAppContext();
 
-        [Route("StartGame")]
+        [Route("api/Multiplayer/StartNewGame")]
         [HttpPost]
         public IHttpActionResult StartGame(JObject startGameForm)
         {
@@ -31,12 +31,13 @@ namespace MazeGame.Controllers
             }
 
             var mazeStr = MazeHandler.GenerateMaze(rows, cols);
-            var mazeJson = JObject.FromObject(mazeStr);
-            var game = new Game() { Name = name,
+            var mazeJson = JObject.Parse(mazeStr);
+            var game = new Game() {
+                Name = name,
                 Rows = rows,
                 Cols = cols,
                 Player1Id = host.Id,
-                MazeString = mazeJson["MazeString"].Value<string>() };
+                MazeString = mazeJson["Maze"].Value<string>() };
 
             try
             {
@@ -50,7 +51,7 @@ namespace MazeGame.Controllers
             }
         }
 
-        [Route("JoinGame")]
+        [Route("api/Multiplayer/JoinGame")]
         [HttpPost]
         public IHttpActionResult JoinGame(JObject joinGameForm)
         {
@@ -78,16 +79,15 @@ namespace MazeGame.Controllers
             try
             {
                 _db.SaveChanges();
-                _movesHub.Connect(user.Id);
                 return Ok(game);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return BadRequest("Error occurred. Please try again");
             }
         }
 
-        [Route("GetGameState")]
+        [Route("api/Multiplayer/GetGameState")]
         [HttpGet]
         public IHttpActionResult GetGameState(string session)
         {
@@ -110,7 +110,7 @@ namespace MazeGame.Controllers
             return Ok(isReady ? "Ready" : "Waiting for player...");
         }
 
-        [Route("GetGames")]
+        [Route("api/Multiplayer/GetGames")]
         [HttpGet]
         public IEnumerable<Game> GetGames()
         {
@@ -161,8 +161,8 @@ namespace MazeGame.Controllers
 
             _movesHub.SendMove(user.Id, opponentId, move.ToString());
 
-            _db.Moves.Add(move);
-            _db.SaveChanges();
+            //_db.Moves.Add(move);
+            //_db.SaveChanges();
             return CreatedAtRoute("DefaultApi", new { id = move.PlayerId }, move);
         }
 

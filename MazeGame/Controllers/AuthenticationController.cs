@@ -1,32 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+
+using MazeGame.Models;
 
 namespace MazeGame.Controllers
 {
     public class AuthenticationController : ApiController
     {
-        [HttpPost]
-        public IHttpActionResult Post(HttpRequest request)
-        {
-            //read parameters - session
-            //if exists redirect
-            //else to login page
+        private readonly MazeAppContext _db = new MazeAppContext();
 
-            var response = Request.CreateResponse(HttpStatusCode.Moved);
-            response.Headers.Location = new Uri("/api/login");
-            return Ok();
-            //return response;
-        }
-
-        [HttpGet]
-        public IHttpActionResult Get(HttpRequest request)
+        public IHttpActionResult Validate(HttpRequest request)
         {
-            return Ok();
+            var sessionToken = request.Params["sessionToken"];
+
+            if (string.IsNullOrWhiteSpace(sessionToken))
+            {
+                return Redirect(new Uri("/api/Register"));
+            }
+
+            var user = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(sessionToken));
+
+            if(user == null)
+            {
+                return Redirect(new Uri("/api/Register"));
+            }
+
+            var validatedUri = request.Url.AbsolutePath.Replace("Validate/", string.Empty);
+            return Redirect(new Uri(validatedUri));
         }
     }
 }
