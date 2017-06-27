@@ -52,7 +52,7 @@ namespace MazeProjectLibrary
             while (solution.States.Count > 0)
             {
                 var nextState = solution.States.Pop();
-                switch (nextState.Value.Subtract(currentState.Value))
+                switch (currentState.Value.Subtract(nextState.Value))
                 {
                     case Direction.Down:
                         directionSymbol = 3;

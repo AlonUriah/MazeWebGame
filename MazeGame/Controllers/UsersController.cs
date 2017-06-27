@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using MazeGame.Models;
 using System.Text;
 using System.Security.Cryptography;
+using System.Collections.Generic;
 
 namespace MazeGame.Controllers
 {
@@ -121,6 +122,21 @@ namespace MazeGame.Controllers
             {
                 return BadRequest("Could not log out, please try again later.");
             }
+        }
+
+        [Route("api/Users/Records")]
+        [HttpGet]
+        public IEnumerable<User> GetRecords(int recordsNum)
+        {
+            var users = _db.Users.OrderByDescending(u => u.Rate).ToArray();
+            var topRecords = new List<User>();
+
+            for(int i=0; i<recordsNum && i < users.Length; i++)
+            {
+                topRecords.Add(users[i]);
+            }
+
+            return topRecords;
         }
 
         private string GenerateToken()
