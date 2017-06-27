@@ -28,9 +28,8 @@ namespace MazeProjectLibrary.Common
             // Assumption - no diagonal moves are allowed
             if (toX - fromX == -1) return Direction.Left;
             else if (toX - fromX == 1) return Direction.Right;
-            else if (toY - fromY == -1) return Direction.Down;
+            else if (toY - fromY == 1) return Direction.Down;
             else return Direction.Up;
         }
-
     }
 }
