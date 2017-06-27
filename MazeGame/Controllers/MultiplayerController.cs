@@ -64,7 +64,7 @@ namespace MazeGame.Controllers
             bool didOpponentJoin = false;
             while (!didOpponentJoin)
             {
-                if (_db.Games.FirstOrDefault(g => g.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && g.Player2Id != null) != null)
+                if ((game = _db.Games.FirstOrDefault(g => g.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && g.Player2Id != null)) != null)
                     didOpponentJoin = true;
             }
 
