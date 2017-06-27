@@ -15,7 +15,7 @@ namespace MazeProjectLibrary
         {
             var maze = new DFSMazeGenerator().Generate(rows, cols);
             var mazeJson = JObject.Parse(maze.ToJSON());
-
+            mazeJson["Maze"] = maze.ToString().Replace("\r\n", string.Empty);
             var currentPos = new JObject();
             currentPos["Row"] = ((JObject)mazeJson["Start"])["Row"];
             currentPos["Col"] = ((JObject)mazeJson["Start"])["Col"];
