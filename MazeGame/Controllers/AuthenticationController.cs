@@ -7,6 +7,7 @@ using MazeGame.Models;
 
 namespace MazeGame.Controllers
 {
+    [RoutePrefix("/api/Multiplayer/")]
     public class AuthenticationController : ApiController
     {
         private readonly MazeAppContext _db = new MazeAppContext();

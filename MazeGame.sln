@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MazeGame", "MazeGame\MazeGa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MazeProjectLibrary", "MazeProjectLibrary\MazeProjectLibrary.csproj", "{28B05A9E-9456-4B4C-8AF8-0E8191805268}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchAlgorithmsLib", "..\MazeProject\SearchAlgorithmsLib\SearchAlgorithmsLib.csproj", "{45F9DBA2-1F45-4795-900B-A6EC3CBD7131}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchAlgorithmsLib", "SearchAlgorithmsLib\SearchAlgorithmsLib.csproj", "{45F9DBA2-1F45-4795-900B-A6EC3CBD7131}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
