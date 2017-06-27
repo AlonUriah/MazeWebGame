@@ -115,12 +115,50 @@ namespace MazeGame.Controllers
             try
             {
                 _db.SaveChanges();
-                return Ok(game);
             }
             catch (Exception e)
             {
                 return BadRequest("Error occurred. Please try again");
             }
+
+            var gameJson = new JObject();
+            gameJson["Id"] = game.Id;
+            gameJson["Name"] = game.Name;
+            gameJson["Rows"] = game.Rows;
+            gameJson["Cols"] = game.Cols;
+            gameJson["Player1Id"] = game.Player1Id;
+            gameJson["Player2Id"] = game.Player2Id;
+            gameJson["Maze"] = game.Maze;
+
+            var startEndJson = ExtractStartAndEndFromMaze(game.Maze, game.Rows, game.Cols);
+            gameJson["Start"] = startEndJson["Start"];
+            gameJson["End"] = startEndJson["End"];
+
+            var currentPos = new JObject();
+            currentPos["Row"] = ((JObject)startEndJson["Start"])["Row"];
+            currentPos["Col"] = ((JObject)startEndJson["Start"])["Col"];
+            gameJson["CurrentPos"] = currentPos;
+
+            return Ok(gameJson);
+        }
+
+        private JObject ExtractStartAndEndFromMaze(string mazeStr, int rows, int cols)
+        {
+            int startIndex = mazeStr.IndexOf("*");
+            int endIndex = mazeStr.IndexOf("#");
+
+            var start = new JObject();
+            start["Row"] = startIndex / cols;
+            start["Col"] = startIndex - (startIndex / cols)*cols;
+
+            var end = new JObject();
+            end["Row"] = endIndex / cols;
+            end["Col"] = endIndex - (endIndex/ cols) * cols;
+
+            var startEndObject = new JObject();
+            startEndObject["Start"] = start;
+            startEndObject["End"] = end;
+            return startEndObject;
         }
 
         [Route("api/Multiplayer/GetGameState")]
