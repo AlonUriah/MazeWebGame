@@ -178,29 +178,6 @@ namespace MazeGame.Controllers
             return startEndObject;
         }
 
-        [Route("api/Multiplayer/GetGameState")]
-        [HttpGet]
-        public IHttpActionResult GetGameState(string sessionToken)
-        {
-            var user = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(sessionToken));
-            if (user == null)
-            {
-                return BadRequest("Your session has expired. Please re-login");
-            }
-
-            var game = _db.Games.FirstOrDefault(g => g.Player1Id == user.Id || g.Player2Id == user.Id);
-            if (game == null)
-            {
-                return BadRequest($"{user.Username} is not playing in any game");
-            }
-
-            bool isReady = game.Player2Id != null;
-
-            if (isReady) _movesHub.Connect(user.Id);
-
-            return Ok(isReady ? "Ready" : "Waiting for player...");
-        }
-
         [Route("api/Multiplayer/GetList")]
         [HttpGet]
         public IEnumerable<string> GetList()
@@ -258,6 +235,14 @@ namespace MazeGame.Controllers
 
             try
             {
+                var updatedLoser = _db.Entry<User>(loser);
+                updatedLoser.Property(p => p.Loses).IsModified = true;
+                updatedLoser.Property(p => p.Rate).IsModified = true;
+
+                var updatedWinner = _db.Entry<User>(winner);
+                updatedLoser.Property(p => p.Wins).IsModified = true;
+                updatedLoser.Property(p => p.Rate).IsModified = true;
+
                 _db.SaveChanges();
                 return Ok();
             }
