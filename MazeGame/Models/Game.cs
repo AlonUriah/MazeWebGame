@@ -2,6 +2,12 @@
 
 namespace MazeGame.Models
 {
+    /// <summary>
+    /// Game Model represents a Game in db.
+    /// Its members are straight forward except - 
+    /// Player1Id which I have used to capture Host Id
+    /// Player2Id which I have used to capture Joinned Opponent Id
+    /// </summary>
     public class Game
     {
         [Required]

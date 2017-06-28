@@ -174,7 +174,6 @@
     <Compile Include="App_Start\Startup.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AuthenticatorController.cs" />
-    <Compile Include="Controllers\DefaultController.cs" />
     <Compile Include="Controllers\MovesHub.cs" />
     <Compile Include="Controllers\MultiplayerController.cs" />
     <Compile Include="Controllers\SingleplayerController.cs" />

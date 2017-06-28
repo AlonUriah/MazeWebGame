@@ -11,6 +11,7 @@ namespace MazeGame.App_Start
     {
         public void Configuration(IAppBuilder app)
         {
+            // Register signalR routing
             app.MapSignalR();
         }
     }

@@ -7,7 +7,11 @@ namespace MazeGame.Models
         public MazeAppContext() : base("name=MazeAppContext")
         {
         }
+
+        // Users table in db.
         public DbSet<User> Users { set; get; }
+
+        // Games table in db
         public DbSet<Game> Games { set; get; }
     }
 }
