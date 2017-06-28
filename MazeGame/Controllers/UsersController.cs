@@ -48,19 +48,19 @@ namespace MazeGame.Controllers
 
             var user = new User() { Username = username, Password = Encoding.UTF8.GetString(encrypted), Email = email };
             bool isUsernameTaken = _db.Users.FirstOrDefault(u => u.Username.Equals(username)) != null;
-            
+
             try
             {
                 _db.Users.Add(user);
                 _db.SaveChanges();
                 return Ok();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return BadRequest("Please select another username");
             }
         }
-        
+
         [Route("api/Users/Login")]
         [HttpPost]
         public IHttpActionResult Login(JObject loginForm)
@@ -84,7 +84,7 @@ namespace MazeGame.Controllers
             string decryptedStr = Encoding.UTF8.GetString(decrypted);
 
             var user = _db.Users.FirstOrDefault(u => u.Username.Equals(username) && u.Password.Equals(decryptedStr));
-            if(user == null)
+            if (user == null)
             {
                 return BadRequest("Username or Password are incorrect.");
             }
@@ -124,21 +124,16 @@ namespace MazeGame.Controllers
             }
         }
 
-        [Route("api/Users/GetRecords")]
+        [Route("api/Users/Records/{recordsNum}")]
         [HttpGet]
-        public IEnumerable<JObject> GetRecords(int recordsNum)
+        public IEnumerable<User> GetRecords(int recordsNum)
         {
             var users = _db.Users.OrderByDescending(u => u.Rate).ToArray();
-            var topRecords = new List<JObject>();
+            var topRecords = new List<User>();
 
-            for(int i=0; i<recordsNum && i < users.Length; i++)
+            for (int i = 0; i < recordsNum && i < users.Length; i++)
             {
-                var user = new JObject();
-                user["Rank"] = users[i].Rate;
-                user["Username"] = users[i].Username;
-                user["Wins"] = users[i].Wins;
-                user["Losses"] = users[i].Loses;
-                topRecords.Add(user);
+                topRecords.Add(users[i]);
             }
 
             return topRecords;

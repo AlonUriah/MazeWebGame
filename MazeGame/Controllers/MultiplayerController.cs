@@ -44,12 +44,14 @@ namespace MazeGame.Controllers
             }
 
             var mazeJson = MazeHandler.GenerateMaze(rows, cols);
-            var game = new Game() {
+            var game = new Game()
+            {
                 Name = name,
                 Rows = rows,
                 Cols = cols,
                 Player1Id = host.Id,
-                Maze = mazeJson["Maze"].Value<string>() };
+                Maze = mazeJson["Maze"].Value<string>()
+            };
 
             try
             {
@@ -164,11 +166,11 @@ namespace MazeGame.Controllers
 
             var start = new JObject();
             start["Row"] = startIndex / cols;
-            start["Col"] = startIndex - (startIndex / cols)*cols;
+            start["Col"] = startIndex - (startIndex / cols) * cols;
 
             var end = new JObject();
             end["Row"] = endIndex / cols;
-            end["Col"] = endIndex - (endIndex/ cols) * cols;
+            end["Col"] = endIndex - (endIndex / cols) * cols;
 
             var startEndObject = new JObject();
             startEndObject["Start"] = start;
@@ -181,7 +183,7 @@ namespace MazeGame.Controllers
         public IHttpActionResult GetGameState(string sessionToken)
         {
             var user = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(sessionToken));
-            if(user == null)
+            if (user == null)
             {
                 return BadRequest("Your session has expired. Please re-login");
             }
@@ -205,8 +207,8 @@ namespace MazeGame.Controllers
         {
             var gameNames = new List<string>();
             var games = _db.Games.Where(g => g.Player2Id == null);
-            
-            foreach(var game in games)
+
+            foreach (var game in games)
             {
                 gameNames.Add(game.Name);
             }
@@ -214,20 +216,20 @@ namespace MazeGame.Controllers
             return gameNames;
         }
 
-        [Route("api/Multiplayer/PlayerWon")]
+        [Route("api/Multiplayer/PlayerWon/{sessionToken}")]
         [HttpGet]
         public IHttpActionResult PlayerWon(string sessionToken)
         {
             var winner = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(sessionToken, StringComparison.OrdinalIgnoreCase));
 
-            if(winner == null)
+            if (winner == null)
             {
                 return BadRequest("Your session has expired. Could not report win");
             }
 
             var game = _db.Games.FirstOrDefault(g => g.Player1Id == winner.Id || g.Player2Id == winner.Id);
 
-            if(game == null)
+            if (game == null)
             {
                 return BadRequest("Could not find game record.");
             }
@@ -244,7 +246,7 @@ namespace MazeGame.Controllers
             int? loserId = (game.Player1Id == winner.Id) ? game.Player2Id : game.Player1Id;
             var loser = _db.Users.FirstOrDefault(u => u.Id == loserId);
 
-            if(loser == null)
+            if (loser == null)
             {
                 return BadRequest("Could not update opponent score");
             }
