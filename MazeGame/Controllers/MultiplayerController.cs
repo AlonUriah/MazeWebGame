@@ -7,6 +7,7 @@ using System.Web.Http.Description;
 using MazeGame.Models;
 using Newtonsoft.Json.Linq;
 using MazeProjectLibrary;
+using System.Threading;
 
 namespace MazeGame.Controllers
 {
@@ -68,6 +69,9 @@ namespace MazeGame.Controllers
                     didOpponentJoin = true;
             }
 
+            _db = new MazeAppContext();
+            game = _db.Games.FirstOrDefault(g => g.Name == name);
+
             var gameJson = new JObject();
             gameJson["Id"] = game.Id;
             gameJson["Name"] = game.Name;
@@ -125,6 +129,7 @@ namespace MazeGame.Controllers
             {
                 return BadRequest("Error occurred. Please try again");
             }
+
             var gameJson = new JObject();
             gameJson["Id"] = game.Id;
             gameJson["Name"] = game.Name;
@@ -148,6 +153,7 @@ namespace MazeGame.Controllers
             oppPos["Col"] = ((JObject)startEndJson["Start"])["Col"];
             gameJson["OppPos"] = oppPos;
 
+
             return Ok(gameJson);
         }
 
@@ -158,11 +164,11 @@ namespace MazeGame.Controllers
 
             var start = new JObject();
             start["Row"] = startIndex / cols;
-            start["Col"] = startIndex - (startIndex / cols) * cols;
+            start["Col"] = startIndex - (startIndex / cols)*cols;
 
             var end = new JObject();
             end["Row"] = endIndex / cols;
-            end["Col"] = endIndex - (endIndex / cols) * cols;
+            end["Col"] = endIndex - (endIndex/ cols) * cols;
 
             var startEndObject = new JObject();
             startEndObject["Start"] = start;
