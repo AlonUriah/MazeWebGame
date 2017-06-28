@@ -84,6 +84,11 @@ namespace MazeGame.Controllers
             currentPos["Col"] = ((JObject)mazeJson["Start"])["Col"];
             gameJson["CurrentPos"] = currentPos;
 
+            var oppPos = new JObject();
+            oppPos["Row"] = ((JObject)mazeJson["Start"])["Row"];
+            oppPos["Col"] = ((JObject)mazeJson["Start"])["Col"];
+            gameJson["OppPos"] = oppPos;
+
             return Ok(gameJson);
         }
 
@@ -120,7 +125,6 @@ namespace MazeGame.Controllers
             {
                 return BadRequest("Error occurred. Please try again");
             }
-
             var gameJson = new JObject();
             gameJson["Id"] = game.Id;
             gameJson["Name"] = game.Name;
@@ -139,6 +143,11 @@ namespace MazeGame.Controllers
             currentPos["Col"] = ((JObject)startEndJson["Start"])["Col"];
             gameJson["CurrentPos"] = currentPos;
 
+            var oppPos = new JObject();
+            oppPos["Row"] = ((JObject)startEndJson["Start"])["Row"];
+            oppPos["Col"] = ((JObject)startEndJson["Start"])["Col"];
+            gameJson["OppPos"] = oppPos;
+
             return Ok(gameJson);
         }
 
@@ -149,11 +158,11 @@ namespace MazeGame.Controllers
 
             var start = new JObject();
             start["Row"] = startIndex / cols;
-            start["Col"] = startIndex - (startIndex / cols)*cols;
+            start["Col"] = startIndex - (startIndex / cols) * cols;
 
             var end = new JObject();
             end["Row"] = endIndex / cols;
-            end["Col"] = endIndex - (endIndex/ cols) * cols;
+            end["Col"] = endIndex - (endIndex / cols) * cols;
 
             var startEndObject = new JObject();
             startEndObject["Start"] = start;
