@@ -7,6 +7,7 @@ using System.Web.Http.Description;
 using MazeGame.Models;
 using Newtonsoft.Json.Linq;
 using MazeProjectLibrary;
+using System.Threading;
 
 namespace MazeGame.Controllers
 {
@@ -68,6 +69,9 @@ namespace MazeGame.Controllers
                     didOpponentJoin = true;
             }
 
+            _db = new MazeAppContext();
+            game = _db.Games.FirstOrDefault(g => g.Name == name);
+
             var gameJson = new JObject();
             gameJson["Id"] = game.Id;
             gameJson["Name"] = game.Name;
@@ -83,6 +87,11 @@ namespace MazeGame.Controllers
             currentPos["Row"] = ((JObject)mazeJson["Start"])["Row"];
             currentPos["Col"] = ((JObject)mazeJson["Start"])["Col"];
             gameJson["CurrentPos"] = currentPos;
+
+            var oppPos = new JObject();
+            oppPos["Row"] = ((JObject)mazeJson["Start"])["Row"];
+            oppPos["Col"] = ((JObject)mazeJson["Start"])["Col"];
+            gameJson["OppPos"] = oppPos;
 
             return Ok(gameJson);
         }
@@ -138,6 +147,12 @@ namespace MazeGame.Controllers
             currentPos["Row"] = ((JObject)startEndJson["Start"])["Row"];
             currentPos["Col"] = ((JObject)startEndJson["Start"])["Col"];
             gameJson["CurrentPos"] = currentPos;
+
+            var oppPos = new JObject();
+            oppPos["Row"] = ((JObject)startEndJson["Start"])["Row"];
+            oppPos["Col"] = ((JObject)startEndJson["Start"])["Col"];
+            gameJson["OppPos"] = oppPos;
+
 
             return Ok(gameJson);
         }
