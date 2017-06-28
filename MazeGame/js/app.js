@@ -504,17 +504,24 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
 
                 function moveOneStep(direction) {
                     var maze = scope.maze;
-                    var src = scope.maze.CurrentPos;
+                    var src;
+
+                    if (attrs.uaMaze == "rival") {
+                        src = scope.maze.OppPos;
+                    } else {
+                        src = scope.maze.CurrentPos;
+                    }
+
                     var dest = undefined;
 
-                    if (direction === "ArrowUp" && maze.CurrentPos.Row > 0) {
-                        dest = { row: maze.CurrentPos.Row - 1, col: maze.CurrentPos.Col };
-                    } else if (direction === "ArrowDown" && maze.CurrentPos.Row < maze.Rows - 1) {
-                        dest = { row: maze.CurrentPos.Row + 1, col: maze.CurrentPos.Col };
-                    } else if (direction === "ArrowRight" && maze.CurrentPos.Col < maze.Cols - 1) {
-                        dest = { row: maze.CurrentPos.Row, col: maze.CurrentPos.Col + 1 };
-                    } else if (direction === "ArrowLeft" && maze.CurrentPos.Col > 0) {
-                        dest = { row: maze.CurrentPos.Row, col: maze.CurrentPos.Col - 1 };
+                    if (direction === "ArrowUp" && src.Row > 0) {
+                        dest = { row: src.Row - 1, col: src.Col };
+                    } else if (direction === "ArrowDown" && src.Row < maze.Rows - 1) {
+                        dest = { row: src.Row + 1, col: src.Col };
+                    } else if (direction === "ArrowRight" && src.Col < maze.Cols - 1) {
+                        dest = { row: src.Row, col: src.Col + 1 };
+                    } else if (direction === "ArrowLeft" && src.Col > 0) {
+                        dest = { row: src.Row, col: src.Col - 1 };
                     }
 
                     if (dest !== undefined && maze.getValue(dest.row, dest.col) !== '1') {
@@ -528,8 +535,14 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                             ctx.drawImage(img3, x, y, cellWidth, cellHeight);
                         };
                         img3.src = "resources/player.png";
-                        maze.CurrentPos.Row = dest.row;
-                        maze.CurrentPos.Col = dest.col;
+
+                        if (attrs.uaMaze == "rival") {
+                            maze.OppPos = dest.row;
+                            maze.OppPos = dest.col;
+                        } else {
+                            maze.CurrentPos.Row = dest.row;
+                            maze.CurrentPos.Col = dest.col;
+                        }
 
                     }
                 }
@@ -634,10 +647,6 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                         }, 300);
                     }
                 });
-
-
-                
-
             }
         };
     });
