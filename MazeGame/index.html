@@ -19,7 +19,7 @@
 
 <title>Maze Project</title>
 </head>
-<body>
+<body ng-controller="indexCtrl">
 <nav class="navbar navbar-inverse navbar-fixed-top">
 	<div class="container">
 
@@ -30,11 +30,10 @@
 	            <span class="icon-bar"></span>
 	            <span class="icon-bar"></span>
 	        </button>
-          	<a class="navbar-brand" href="#"><span class="glyphicon glyphicon-th" style="color: yellow"></span>   The Maze Project</a>
+          	<a class="navbar-brand" href="/"><span class="glyphicon glyphicon-th" style="color: yellow"></span>   The Maze Project</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse in" aria-expanded="true">
             <ul class="nav navbar-nav">
-            	<li><a href="home">Home</a></li>
             	<li><a href="about">About</a></li>
 				<li><a href="scores">Hall of Fame</a></li>
             	<li class="dropdown">
@@ -42,14 +41,12 @@
               		<ul class="dropdown-menu">
                 		<li><a href="single-mode">Single-Player Mode</a></li>
                 		<li><a href="multi-mode">Multi-Player Mode</a></li>
-                		<li role="separator" class="divider"></li>
-                		<li><a href="settings">Settings</a></li>
               		</ul>
             	</li>
           	</ul>
           	<ul class="nav navbar-nav navbar-right">
-      			<li><a href="register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-      			<li><a href="login"><span class="glyphicon glyphicon-log-in"></span>  Login</a></li>
+      			<li><a href="{{signupHref}}"><span class="glyphicon glyphicon-user"></span> {{signupHrefTitle}}</a></li>
+      			<li><a ng-href="{{loginHref}}"><span class="glyphicon glyphicon-log-in"></span>  {{loginHrefTitle}}</a></li>
     		</ul>
         </div>
         </div>
