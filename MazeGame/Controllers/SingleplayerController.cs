@@ -1,5 +1,6 @@
 ﻿using System.Web.Http;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 using MazeProjectLibrary;
 using MazeGame.Models;
 using System;
@@ -21,7 +22,7 @@ namespace MazeGame.Controllers
         [HttpPost]
         public IHttpActionResult CreateGame(JObject gameForm)
         {
-            string name;
+            string name, sessionToken;
             int rows, cols;
 
             // Try get mandatory fields from Request
@@ -30,10 +31,17 @@ namespace MazeGame.Controllers
                 name = gameForm["name"].Value<string>();
                 rows = gameForm["rows"].Value<int>();
                 cols = gameForm["cols"].Value<int>();
+                sessionToken = gameForm["sessionToken"].Value<string>();
             }
             catch (Exception)
             {
                 return BadRequest("Could not find one or more mandatory fields - name,rows and cols");
+            }
+
+            var user = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(sessionToken));
+            if(user == null)
+            {
+                return BadRequest("User must be logged in in order to play");
             }
 
             // Generate maze by using MazeHandler
@@ -50,18 +58,26 @@ namespace MazeGame.Controllers
         [HttpPost]
         public IHttpActionResult Solve(JObject game)
         {
+            string sessionToken;
             JObject jasonGame;
             int algorithm;
 
             // Get game from request parameters
             try
             {
+                sessionToken = game["sessionToken"].Value<string>();
                 jasonGame = (JObject)game["game"];
                 algorithm = game["algorithm"].Value<int>();
             }
             catch
             {
                 return BadRequest("One/more mandatory fields are missing");
+            }
+
+            var user = _db.Users.FirstOrDefault(u => u.SessionToken.Equals(sessionToken));
+            if (user == null)
+            {
+                return BadRequest("User must be logged in in order to play");
             }
 
             // Get solution by calling MazeHandler.SolveMaze

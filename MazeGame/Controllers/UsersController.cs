@@ -19,7 +19,7 @@ namespace MazeGame.Controllers
         /// </summary>
         /// <param name="username">An optional username to validate</param>
         /// <returns>True if this username is valid (not exist in database), False otherwise</returns>
-        [Route("api/Users/ValidateUsername")]
+        [Route("api/Users/ValidateUsername/{username}")]
         [HttpGet]
         public IHttpActionResult ValidateUsername(string username)
         {
@@ -137,7 +137,7 @@ namespace MazeGame.Controllers
         /// </summary>
         /// <param name="sessionToken"></param>
         /// <returns></returns>
-        [Route("api/Users/Logout")]
+        [Route("api/Users/Logout/{sessionToken}")]
         [HttpGet]
         public IHttpActionResult Logout(string sessionToken)
         {

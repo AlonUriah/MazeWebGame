@@ -17,7 +17,7 @@ namespace MazeGame.Controllers
         /// </summary>
         /// <param name="sessionToken">User sessionToken to be validated</param>
         /// <returns>True if session is alive, False otherwise</returns>
-        [Route("api/Validate")]
+        [Route("api/Validate/{sessionToken}")]
         [HttpGet]
         public IHttpActionResult Validate(string sessionToken)
         {
