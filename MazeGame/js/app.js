@@ -11,10 +11,6 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                 templateUrl: 'content/register.html',
                 controller: 'regCtrl'
             })
-            .when("/home", {
-                templateUrl: 'content/home.html',
-                controller: 'homeCtrl'
-            })
             .when("/about", {
                 templateUrl: 'content/about.html',
                 controller: 'aboutCtrl'
@@ -36,51 +32,87 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
             })
             .when("/login", {
                 templateUrl: 'content/login.html',
-                contoller: 'loginCtrl'
+                controller: 'loginCtrl'
+            })
+            .when("/logout", {
+                templateUrl: 'content/logout.html',
+                controller: 'logoutCtrl'
             })
             .otherwise({ redirectTo: '/' });
         $locationProvider.html5Mode(true);
     })
-    .controller('multiCtrl', function ($scope, $http, $timeout) {
+    .controller('indexCtrl', function ($rootScope, $scope, $window) {
+        if ($window.sessionStorage.getItem("sessionToken") == null) {
+            $rootScope.loginHref = 'login';
+            $rootScope.loginHrefTitle = 'Login';
+            $rootScope.signupHref = 'register';
+            $rootScope.signupHrefTitle = 'Sign Up';
+        } else {
+            $rootScope.loginHref = 'logout';
+            $rootScope.loginHrefTitle = 'Logout';
+            $rootScope.signupHref = '#';
+            $rootScope.signupHrefTitle = 'Hello, ' + $window.sessionStorage.getItem("mazeUsername") + '!';
+        }
+    })
+    .controller('logoutCtrl', function ($rootScope, $scope, $http, $interval, $location, $window) {
+
+        if ($window.sessionStorage.getItem("sessionToken") != null) {
+            $scope.timer = 3;
+
+            $scope.message = 'Logging out in ' + $scope.timer + ' seconds...';
+
+
+            var stop = $interval(function () {
+                $scope.timer--;
+                if ($scope.timer == 0) {
+                    $http({
+                        method: 'GET',
+                        url: 'api/Users/Logout/' + $window.sessionStorage.getItem("sessionToken")
+                    }).then(function (response) {
+                        $window.sessionStorage.removeItem("sessionToken");
+                        $rootScope.loginHref = 'login';
+                        $rootScope.loginHrefTitle = 'Login';
+                        $rootScope.signupHref = 'register';
+                        $rootScope.signupHrefTitle = 'Sign Up';
+                    }, function (error) {
+                        console.log(error);
+                        $scope.message = "You're not logged in. Redirecting...";
+                    });
+                    $scope.message = 'Logged out. Redirecting...';
+                } else if ($scope.timer == -1) {
+                    $interval.cancel(stop);
+                    $location.path('/login');
+                }
+                $scope.message = 'Logging out in ' + $scope.timer + ' seconds...';
+            }, 1000);
+        } else {
+            $location.path('/login');
+        }
+    })
+    .controller('multiCtrl', function ($scope, $http, $timeout, $window, $location) {
         // Ajax call to have the scores
+        if ($window.sessionStorage.getItem("sessionToken") != null) {
+            $scope.name = {
+                value: '',
+                errors: []
+            };
+            $scope.rows = {
+                value: '',
+                errors: []
+            };
+            $scope.cols = {
+                value: '',
+                errors: []
+            };
 
-        $scope.name = {
-            value: '',
-            errors: []
-        };
-        $scope.rows = {
-            value: '',
-            errors: []
-        };
-        $scope.cols = {
-            value: '',
-            errors: []
-        };
+            $scope.maze = undefined;
+            $scope.game = undefined;
+            $scope.games = [];
+            $scope.refresh = false;
+            $scope.id = undefined;
+            $scope.opp_id = undefined;
 
-        $scope.maze = undefined;
-        $scope.game = undefined;
-        $scope.games = [];
-        $scope.refresh = false;
-        $scope.id = undefined;
-        $scope.opp_id = undefined;
-
-        $scope.movesHub = $.connection.movesHub;
-
-        $http({
-            method: 'GET',
-            url: 'api/Multiplayer/GetList'
-        }).then(function (response) {
-            $scope.games = response.data;
-        }, function (error) {
-            console.log(error);
-        });
-
-        $scope.refreshList = function () {
-            // Delay the timeout
-            $scope.refresh = true;
-            $timeout(function () {
-                $scope.refresh = false;
-            }, 3000);
+            $scope.movesHub = $.connection.movesHub;
 
             $http({
                 method: 'GET',
@@ -90,66 +122,82 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
             }, function (error) {
                 console.log(error);
             });
-        }
 
-        $scope.hostGame = function () {
-            var data = {
-                name: $scope.name.value,
-                rows: $scope.rows.value,
-                cols: $scope.cols.value,
-                sessionToken: '1'
-            };
+            $scope.refreshList = function () {
+                // Delay the timeout
+                $scope.refresh = true;
+                $timeout(function () {
+                    $scope.refresh = false;
+                }, 3000);
 
-            $http({
-                method: 'POST',
-                url: '/api/Multiplayer/StartNewGame',
-                data: data
-            })
-                .then(function (response) {
-                    $scope.maze = response.data;
-                    $scope.maze.getValue = function (row, col) {
-                        return this.Maze[row * this.Cols + col];
-                    };
-                    $.connection.hub.start().then(function () {
-                        $scope.id = $scope.maze.Player1Id;
-                        $scope.opp_id = $scope.maze.Player2Id;
-                        console.log($scope.maze);
-                        $scope.movesHub.server.connect($scope.maze.Player1Id);
-                        console.log("connected!");
-                    });
+                $http({
+                    method: 'GET',
+                    url: 'api/Multiplayer/GetList'
+                }).then(function (response) {
+                    $scope.games = response.data;
                 }, function (error) {
                     console.log(error);
                 });
+            }
 
-        }
+            $scope.hostGame = function () {
+                var data = {
+                    name: $scope.name.value,
+                    rows: $scope.rows.value,
+                    cols: $scope.cols.value,
+                    sessionToken: $window.sessionStorage.getItem("sessionToken")
+                };
 
-        $scope.joinGame = function () {
-
-            var data = {
-                name: $scope.game,
-                sessionToken: '2'
-            };
-
-            $http({
-                method: 'POST',
-                url: 'api/Multiplayer/JoinGame',
-                data: data
-            })
-                .then(function (response) {
-                    $scope.maze = response.data;
-                    $scope.maze.getValue = function (row, col) {
-                        return this.Maze[row * this.Cols + col];
-                    };
-                    $.connection.hub.start().then(function () {
-                        $scope.id = $scope.maze.Player2Id;
-                        $scope.opp_id = $scope.maze.Player1Id;
-                        $scope.movesHub.server.connect($scope.maze.Player2Id);
+                $http({
+                    method: 'POST',
+                    url: '/api/Multiplayer/StartNewGame',
+                    data: data
+                })
+                    .then(function (response) {
+                        $scope.maze = response.data;
+                        $scope.maze.getValue = function (row, col) {
+                            return this.Maze[row * this.Cols + col];
+                        };
+                        $.connection.hub.start().then(function () {
+                            $scope.id = $scope.maze.Player1Id;
+                            $scope.opp_id = $scope.maze.Player2Id;
+                            $scope.movesHub.server.connect($scope.maze.Player1Id);
+                        });
+                    }, function (error) {
+                        console.log(error);
                     });
-                }, function (error) {
-                    console.log(error);
-                });
-        }
 
+            }
+
+            $scope.joinGame = function () {
+
+                var data = {
+                    name: $scope.game,
+                    sessionToken: $window.sessionStorage.getItem("sessionToken")
+                };
+
+                $http({
+                    method: 'POST',
+                    url: 'api/Multiplayer/JoinGame',
+                    data: data
+                })
+                    .then(function (response) {
+                        $scope.maze = response.data;
+                        $scope.maze.getValue = function (row, col) {
+                            return this.Maze[row * this.Cols + col];
+                        };
+                        $.connection.hub.start().then(function () {
+                            $scope.id = $scope.maze.Player2Id;
+                            $scope.opp_id = $scope.maze.Player1Id;
+                            $scope.movesHub.server.connect($scope.maze.Player2Id);
+                        });
+                    }, function (error) {
+                        console.log(error);
+                    });
+            }
+        } else {
+            $location.path('/login');
+        }
 
     })
     .controller('scoreCtrl', function ($scope, $http) {
@@ -162,18 +210,55 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
             method: 'GET',
             url: 'api/Users/Records/' + $scope.amount,
         }).then(function (response) {
-            console.log(response);
             $scope.records = response.data;
         }, function (error) {
             console.log(error);
             });
-
-        
         
     })
-    .controller('loginCtrl', function ($scope) {
+    .controller('loginCtrl', function ($rootScope, $scope, $http, $window, $timeout, $location) {
         $scope.username = '';
         $scope.password = '';
+        $scope.error = '';
+        $scope.success = '';
+        
+        $scope.$watch('username', function (newVal, oldVal) {
+            $scope.error = '';
+        });
+
+        $scope.$watch('password', function (newVal, oldVal) {
+            $scope.error = '';
+        });
+        
+        $scope.login = function () {
+
+            var data = {
+                username: $scope.username,
+                password: $scope.password
+            };
+
+            $http({
+                method: 'POST',
+                url: 'api/Users/Login',
+                data: data
+            }).then(function (response) {
+                $window.sessionStorage.setItem("sessionToken", response.data);
+                $window.sessionStorage.setItem("mazeUsername", data.username);
+                $rootScope.loginHref = 'logout';
+                $rootScope.loginHrefTitle = 'Logout';
+                $rootScope.signupHref = '#';
+                $rootScope.signupHrefTitle = 'Hello, ' + $window.sessionStorage.getItem("mazeUsername") + '!';
+                $scope.success = 'You are logged in now. Redirecting...';
+                $timeout(function () {
+                    $location.path('/');
+                }, 2000);
+                }, function (error) {
+                    $scope.error = error.data.Message;
+                });
+        }
+
+
+
 
     })
     .controller('homeCtrl', function ($scope) {
@@ -182,86 +267,93 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
     .controller('aboutCtrl', function ($scope) {
 
     })
-    .controller('singleCtrl', function ($scope, $http, usSpinnerService) {
-
-        $scope.name = {
-            value: '',
-            errors: []
-        };
-        $scope.rows = {
-            value: '',
-            errors: []
-        };
-        $scope.cols = {
-            value: '',
-            errors: []
-        };
-        $scope.algorithm = {
-            value: undefined,
-            errors: []
-        };
-        $scope.solve = true;
-        $scope.solve_clicked = false;
-        // validate
-
-        $scope.startGame = function () {
-            $scope.solve_clicked = false;
-            usSpinnerService.spin('spinner');
-            var data = {
-                name: $scope.name.value,
-                rows: $scope.rows.value,
-                cols: $scope.cols.value,
+    .controller('singleCtrl', function ($scope, $http, $window, $location, usSpinnerService) {
+        if ($window.sessionStorage.getItem("sessionToken") != null) {
+            $scope.name = {
+                value: '',
+                errors: []
             };
-            // Ajax call to GenerateMaze
-            $http({
-                method: 'POST',
-                url: 'api/Singleplayer/CreateGame',
-                data: data
-            })
-                .then(function (response) {
-                    usSpinnerService.stop('spinner');
-                    $scope.maze = response.data;
-                    $scope.maze.getValue = function (row, col) {
-                        return this.Maze[row * this.Cols + col];
-                    };
-                }, function (error) {
-                    console.log(error);
-                    usSpinnerService.stop('spinner');
-                });
-
-            $scope.$watch('algorithm.value', function (newVal, oldVal) {
-                if ((newVal == '0' || newVal == '1') && $scope.maze != undefined && !$scope.solve_clicked) {
-                    $scope.solve = false;
-                    $scope.solve_clicked = true;
-                } else {
-                    $scope.solve = true;
-                }
-            });
-
-        }
-
-        $scope.solveGame = function () {
+            $scope.rows = {
+                value: '',
+                errors: []
+            };
+            $scope.cols = {
+                value: '',
+                errors: []
+            };
+            $scope.algorithm = {
+                value: undefined,
+                errors: []
+            };
             $scope.solve = true;
-            var data = {
-                game: $scope.maze,
-                algorithm: $scope.algorithm.value
-            };
-            // http request
-            $http({
-                method: 'POST',
-                url: 'api/Singleplayer/Solve',
-                data: data
-            })
-                .then(function (response) {
-                    $scope.solution = response.data;
-                    console.log($scope.solution);
-                }, function (error) {
-                    console.log(error);
-                    $scope.solve = false;
+            $scope.solve_clicked = false;
+            // validate
+
+            $scope.startGame = function () {
+                $scope.solve_clicked = false;
+                usSpinnerService.spin('spinner');
+                var data = {
+                    sessionToken: $window.sessionStorage.getItem("sessionToken"),
+                    name: $scope.name.value,
+                    rows: $scope.rows.value,
+                    cols: $scope.cols.value,
+                };
+                // Ajax call to GenerateMaze
+                $http({
+                    method: 'POST',
+                    url: 'api/Singleplayer/CreateGame',
+                    data: data
+                })
+                    .then(function (response) {
+                        usSpinnerService.stop('spinner');
+                        $scope.maze = response.data;
+                        $scope.maze.getValue = function (row, col) {
+                            return this.Maze[row * this.Cols + col];
+                        };
+                    }, function (error) {
+                        console.log(error);
+                        usSpinnerService.stop('spinner');
+                    });
+
+                $scope.$watch('algorithm.value', function (newVal, oldVal) {
+                    if ((newVal == '0' || newVal == '1') && $scope.maze != undefined && !$scope.solve_clicked) {
+                        $scope.solve = false;
+                        $scope.solve_clicked = true;
+                    } else {
+                        $scope.solve = true;
+                    }
                 });
+
+            }
+
+            $scope.solveGame = function () {
+                $scope.solve = true;
+                var data = {
+                    sessionToken: $window.sessionStorage.getItem("sessionToken"),
+                    game: $scope.maze,
+                    algorithm: $scope.algorithm.value
+                };
+                // http request
+                $http({
+                    method: 'POST',
+                    url: 'api/Singleplayer/Solve',
+                    data: data
+                })
+                    .then(function (response) {
+                        $scope.solution = response.data;
+                    }, function (error) {
+                        console.log(error);
+                        $scope.solve = false;
+                    });
+            }
+        } else {
+            $location.path('/login');
         }
     })
-    .controller('regCtrl', function ($scope) {
+    .controller('regCtrl', function ($scope, $http, $timeout, $location) {
+
+        $scope.success = '';
+
         var details = {
             username: {
                 value: '',
@@ -303,14 +395,15 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                 data: data
             })
                 .then(function (response) {
-                    console.log(response);
+                    alert("Registration success. Redirecting...");
+                    $location.path('/login');
                 }, function (error) {
                     console.log(error);
                 });
 
         }
     })
-    .directive('uaUsername', function () {
+    .directive('uaUsername', function ($http) {
         return {
             require: 'ngModel',
             link: function (scope, element, attr, mCtrl) {
@@ -332,23 +425,23 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                         mCtrl.$setValidity('regex', false);
                     }
 
-
-                    $http({
-                        method: 'GET',
-                        url: 'api/Users/ValidateUsername',
-                        data: value
-                    }).then(function (response) {
-                        if (response) {
-                            scope.details.username.errors.unique = '';
-                            mCtrl.$setValidity('unique', true);
-                        } else {
-                            if (scope.details.username.errors.unique === '')
-                                scope.details.username.errors.unique = "Username already exists.";
-                            mCtrl.$setValidity('unique', false);
-                        }
-                    }, function (error) {
-                        console.log(error);
-                    });
+                    if (value != '') {
+                        $http({
+                            method: 'GET',
+                            url: 'api/Users/ValidateUsername/' + value
+                        }).then(function (response) {
+                            if (response.data) {
+                                scope.details.username.errors.unique = '';
+                                mCtrl.$setValidity('unique', true);
+                            } else {
+                                if (scope.details.username.errors.unique == '')
+                                    scope.details.username.errors.unique = "Username already exists.";
+                                mCtrl.$setValidity('unique', false);
+                            }
+                        }, function (error) {
+                            console.log(error);
+                        });
+                    }
 
 
                     // Ajax call to validate user existance
@@ -500,7 +593,7 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
             }
         };
     })
-    .directive('uaMaze', function ($document, $interval, $http) {
+    .directive('uaMaze', function ($document, $interval, $http, $window) {
         return {
             restrict: "A",
             link: function (scope, element, attrs) {
@@ -561,26 +654,24 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                     }
                 }
                 function onWin() {
-                    console.log("You win!");
+                    alert("You win!");
                     $document.unbind('keydown');
           
                     // Update scores at server
                     $http({
                         method: 'GET',
-                        url: 'api/Multiplayer/PlayerWon/1'
+                        url: 'api/Multiplayer/PlayerWon/' + $window.sessionStorage.getItem("sessionToken")
                     }).then(function (response) {
-                        console.log("Done");
                         }, function (error) {
                             console.log("Error");
                         });
                 }
                 function onLose() {
-                    console.log("You lost!");
+                    alert("You lost!");
                     $document.unbind('keydown');
                 }
 
                 scope.$watch('maze', function (newVal, oldVal) {
-                    console.log(newVal);
                     if (newVal !== undefined) {
                         ctx = element[0].getContext('2d');
                         rows = newVal.Rows;
@@ -630,7 +721,6 @@ var app = angular.module('MazeProject', ['ngRoute', 'angularSpinner'])
                         if (attrs.uaMaze != "rival") {
                             $document.bind('keydown', function (e) {
                                 moveOneStep(e.key);
-                                console.log(scope.id, scope.opp_id);
                                 if (attrs.uaMaze == "player")
                                     scope.movesHub.server.sendMove(scope.id, scope.opp_id, e.key);
                                 if (scope.maze.CurrentPos.Row == scope.maze.End.Row &&
